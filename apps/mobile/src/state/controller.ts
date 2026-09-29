@@ -8,14 +8,14 @@ import { detectLocale } from "../i18n";
 import { createLocalApi } from "../mock/localApi";
 import { shouldShowPaywall } from "../paywall/triggers";
 import { createPurchases, type Purchases } from "../purchases";
+import { isSpeaking, setSpeaking } from "./speaking";
 import { appStore, initialData } from "./store";
 import { asyncKV, clearPrefs, loadPrefs, savePrefs, type Prefs } from "./prefs";
 
 let purchases: Purchases | null = null;
 let ads: Ads | null = null;
 let paywallHistory: Record<string, number> = {};
-let speakingNow = false;
-export const setSpeaking = (v: boolean) => { speakingNow = v; };
+export { setSpeaking, isSpeaking };
 
 const api = () => { const a = appStore.get().api; if (!a) throw new Error("app not booted"); return a; };
 export const getAds = () => (ads ??= createAds());
@@ -33,7 +33,7 @@ function wireBus() {
   if (wired) return; wired = true;
   bus.on("paywall.requested", (e) => {
     const tier = appStore.get().user?.membership.tier ?? "free";
-    if (shouldShowPaywall(e.payload.trigger, tier, paywallHistory, Date.now(), speakingNow)) {
+    if (shouldShowPaywall(e.payload.trigger, tier, paywallHistory, Date.now(), isSpeaking())) {
       paywallHistory = { ...paywallHistory, [e.payload.trigger]: Date.now() }; void savePrefs({ paywallHistory });
       appStore.set({ paywall: e.payload.trigger });
     }
