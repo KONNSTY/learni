@@ -1,0 +1,14 @@
+{
+  "name": "@learni/contracts",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Versionierte API- und Event-Vertraege (Contract-first). Typen werden daraus generiert.",
+  "scripts": {
+    "gen": "node scripts/gen.mjs",
+    "check": "node scripts/gen.mjs --check"
+  },
+  "devDependencies": {
+    "json-schema-to-typescript": "^15.0.0",
+    "openapi-typescript": "^7.0.0"
+  }
+}
