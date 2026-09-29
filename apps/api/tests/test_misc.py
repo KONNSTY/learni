@@ -268,3 +268,25 @@ def test_word_order_for_well_known_vocabulary_in_sentence():
     ex = _build(orch, cards={"es.coffee": strong}, skills={"listening": 1, "speaking": 1, "vocabulary": 0, "grammar": 1}, ui_lang="de")
     assert ex["type"] == "word_order" and sorted(ex["content"]["tokens"]) == sorted(ex["expected_answer"])
     assert ex["prompt"]["say"] == "Ich möchte einen Kaffee" and ex["decidable"]
+
+
+def test_kpi_report_covers_required_kpis():
+    from datetime import date
+
+    from learni_api import kpi
+    st = MemoryStore()
+    today = date(2026, 9, 29)
+    st.upsert("profiles", {"user_id": "u1", "created_at": "2026-09-22T10:00:00+00:00"})
+    st.upsert("profiles", {"user_id": "u2", "created_at": "2026-09-22T11:00:00+00:00"})
+    for uid, ts in (("u1", "2026-09-23T09:00:00+00:00"), ("u1", "2026-09-29T09:00:00+00:00"), ("u2", "2026-09-29T09:00:00+00:00")):
+        st.insert("analytics_events", {"user_id": uid, "name": "app_open", "ts": ts, "language": "es", "props": {}})
+    st.insert("analytics_events", {"user_id": "u1", "name": "trial_start", "ts": "2026-09-24T09:00:00+00:00", "props": {}})
+    st.insert("analytics_events", {"user_id": "u1", "name": "trial_converted", "ts": "2026-10-01T09:00:00+00:00", "props": {}})
+    st.insert("analytics_events", {"user_id": "u1", "name": "ad_impression", "ts": "2026-09-29T09:30:00+00:00", "props": {"revenue_cents": 0.5}})
+    st.insert("analytics_events", {"user_id": "u1", "name": "voice_turn", "ts": "2026-09-29T09:30:00+00:00", "language": "es", "props": {}})
+    st.insert("analytics_events", {"user_id": "u1", "name": "error", "ts": "2026-09-29T09:31:00+00:00", "language": "es", "props": {}})
+    st.upsert("usage_daily", {"user_id": "u1", "day": "2026-09-29", "ai_seconds": 60, "cost_cents": 2.0})
+    r = kpi.report(st, today, latency_p95_ms=1700)
+    assert r["dau"] == 2 and r["retention"]["d1"] == 0.5 and r["retention"]["d7"] == 1.0 and r["retention"]["d30"] is None
+    assert r["trial_to_paid"] == 1.0 and r["cogs_cents_per_dau"] == 1.0 and r["ad_arpdau_cents"] == 0.25
+    assert r["latency_p95_ms"] == 1700 and r["error_rate_per_language"] == {"es": 0.5}

@@ -129,7 +129,7 @@
         "en": "Hi, how are you?"
       },
       "tokens": [
-        "Hola",
+        "Hola,",
         "¿cómo",
         "estás?"
       ]

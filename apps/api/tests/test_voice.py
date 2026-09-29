@@ -143,3 +143,10 @@ def test_latency_endpoint_records_stages(client, user):
     client.post("/v1/voice/turn", json={"language": "es", "text": "Hola"}, headers=h)
     snap = client.get("/v1/internal/latency", headers=h).json()
     assert snap["total"]["p50"] is not None and snap["total"]["p95"] is not None
+
+
+def test_mock_llm_turns_pass_the_real_guardrail_schema(client, user):
+    """Regression: Mock-Ausgaben muessen das Schema erfuellen (sonst faellt die Pipeline still auf den Fallback zurueck)."""
+    _, h = user
+    evs = client.post("/v1/voice/turn", json={"language": "es", "text": "Hola"}, headers=h).json()["events"]
+    assert " ".join(e["payload"]["text"] for e in evs) == "¡Hola! ¿Cómo te llamas?"  # satzweise Events

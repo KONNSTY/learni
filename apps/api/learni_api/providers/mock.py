@@ -53,7 +53,7 @@ class MockLLM:
             lang = self.language_hint if self.language_hint in MOCK_DIALOGS else ""
         script = MOCK_DIALOGS.get(lang, GENERIC_DIALOG)
         idx = min(sum(1 for m in messages if m["role"] == "user") - 1, len(script) - 1)
-        turn = {k: v for k, v in script[max(idx, 0)].items() if v is not None}
+        turn = {k: v for k, v in script[max(idx, 0)].items() if v is not None or k == "expected_answer"}
         return LLMResult(json.dumps(turn, ensure_ascii=False), "mock", 0, 0, 0.0, True)
 
 
