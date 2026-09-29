@@ -45,6 +45,7 @@ supabase/.temp/
 # Generated audio / caches / local data
 .audio-cache/
 *.wav
+!apps/mobile/assets/sfx/*.wav
 *.mp3.tmp
 tmp/
 .cache/
