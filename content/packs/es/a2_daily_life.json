@@ -1,0 +1,59 @@
+{
+  "schema_version": "1.0.0",
+  "pack_id": "es-a2-daily_life",
+  "language": "es",
+  "level": "A2",
+  "topic": "daily_life",
+  "status": "draft",
+  "reviewer": null,
+  "items": [
+    {
+      "item_id": "es.to_eat",
+      "lemma": "comer",
+      "translations": {
+        "de": "essen",
+        "en": "to eat"
+      },
+      "frequency_rank": 40,
+      "skill_tags": [
+        "vocabulary"
+      ]
+    },
+    {
+      "item_id": "es.to_drink",
+      "lemma": "beber",
+      "translations": {
+        "de": "trinken",
+        "en": "to drink"
+      },
+      "frequency_rank": 41,
+      "skill_tags": [
+        "vocabulary"
+      ]
+    },
+    {
+      "item_id": "es.today",
+      "lemma": "hoy",
+      "translations": {
+        "de": "heute",
+        "en": "today"
+      },
+      "frequency_rank": 42,
+      "skill_tags": [
+        "vocabulary"
+      ]
+    },
+    {
+      "item_id": "es.tomorrow",
+      "lemma": "mañana",
+      "translations": {
+        "de": "morgen",
+        "en": "tomorrow"
+      },
+      "frequency_rank": 43,
+      "skill_tags": [
+        "vocabulary"
+      ]
+    }
+  ]
+}

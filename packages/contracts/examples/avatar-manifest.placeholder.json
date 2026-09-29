@@ -1,0 +1,21 @@
+{
+  "manifest_version": "1.0.0",
+  "id": "placeholder",
+  "name": "Platzhalter-Avatar (2D)",
+  "riv_file": "placeholder.riv",
+  "state_machine": "Avatar",
+  "inputs": {
+    "viseme": { "name": "viseme", "min": 0, "max": 21 },
+    "emotion": { "name": "emotion", "values": ["neutral", "happy", "encouraging", "thinking", "surprised", "sad", "celebrate"] },
+    "gaze_x": { "name": "gazeX" },
+    "gaze_y": { "name": "gazeY" },
+    "speaking": { "name": "speaking" }
+  },
+  "outfit_slots": [
+    { "slot": "hat", "input": "outfitHat", "variants": 3 },
+    { "slot": "glasses", "input": "outfitGlasses", "variants": 2 },
+    { "slot": "top", "input": "outfitTop", "variants": 4 },
+    { "slot": "background", "input": "outfitBackground", "variants": 3 }
+  ],
+  "license": "CC0-1.0"
+}

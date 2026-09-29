@@ -1,0 +1,100 @@
+// AUTO-GENERIERT aus packages/tokens/tokens.json (npm run tokens). Nicht von Hand aendern.
+export const tokens = {
+  "version": "1.0.0",
+  "color": {
+    "light": {
+      "bg": "#F7F5EF",
+      "surface": "#FFFFFF",
+      "surfaceAlt": "#EEEBE2",
+      "text": "#1E2430",
+      "textMuted": "#5B6472",
+      "primary": "#2F6BFF",
+      "primaryText": "#FFFFFF",
+      "success": "#1F9D55",
+      "successBg": "#DDF5E7",
+      "error": "#D64545",
+      "errorBg": "#FBE3E3",
+      "warning": "#E8A317",
+      "heart": "#F0445B",
+      "streak": "#FF8A1F",
+      "xp": "#8B5CF6",
+      "border": "#D9D5C8"
+    },
+    "dark": {
+      "bg": "#12151C",
+      "surface": "#1C212B",
+      "surfaceAlt": "#262C38",
+      "text": "#F2F4F8",
+      "textMuted": "#A3ACBA",
+      "primary": "#6C96FF",
+      "primaryText": "#0B1020",
+      "success": "#4CC886",
+      "successBg": "#16382A",
+      "error": "#FF7A7A",
+      "errorBg": "#432121",
+      "warning": "#F4BC4A",
+      "heart": "#FF6F84",
+      "streak": "#FFA04D",
+      "xp": "#A98BFF",
+      "border": "#333A48"
+    }
+  },
+  "space": {
+    "xs": 4,
+    "sm": 8,
+    "md": 16,
+    "lg": 24,
+    "xl": 32,
+    "xxl": 48
+  },
+  "radius": {
+    "sm": 8,
+    "md": 14,
+    "lg": 24,
+    "pill": 999
+  },
+  "font": {
+    "family": "Inter",
+    "size": {
+      "caption": 13,
+      "body": 16,
+      "bodyLg": 18,
+      "title": 24,
+      "display": 34
+    },
+    "weight": {
+      "regular": "400",
+      "medium": "500",
+      "bold": "700"
+    }
+  },
+  "motion": {
+    "duration": {
+      "instant": 100,
+      "fast": 180,
+      "base": 280,
+      "slow": 480
+    },
+    "easing": {
+      "standard": [
+        0.2,
+        0,
+        0,
+        1
+      ],
+      "emphasized": [
+        0.3,
+        0,
+        0,
+        1
+      ],
+      "bounce": [
+        0.34,
+        1.56,
+        0.64,
+        1
+      ]
+    },
+    "reduceMotionDuration": 0
+  }
+} as const;

@@ -1,0 +1,56 @@
+[
+  {
+    "code": "en",
+    "name": "English",
+    "native_name": "English",
+    "tier": "A",
+    "badge": "EN",
+    "region_variants": [
+      "en-GB",
+      "en-US"
+    ]
+  },
+  {
+    "code": "es",
+    "name": "Spanish",
+    "native_name": "Español",
+    "tier": "A",
+    "badge": "ES",
+    "region_variants": [
+      "es-ES",
+      "es-MX"
+    ]
+  },
+  {
+    "code": "fr",
+    "name": "French",
+    "native_name": "Français",
+    "tier": "A",
+    "badge": "FR",
+    "region_variants": []
+  },
+  {
+    "code": "hr",
+    "name": "Croatian",
+    "native_name": "Hrvatski",
+    "tier": "B",
+    "badge": "HR",
+    "region_variants": []
+  },
+  {
+    "code": "id",
+    "name": "Indonesian",
+    "native_name": "Bahasa Indonesia",
+    "tier": "B",
+    "badge": "ID",
+    "region_variants": []
+  },
+  {
+    "code": "tr",
+    "name": "Turkish",
+    "native_name": "Türkçe",
+    "tier": "B",
+    "badge": "TR",
+    "region_variants": []
+  }
+]

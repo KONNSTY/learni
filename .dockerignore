@@ -1,0 +1,6 @@
+.git
+**/node_modules
+**/.env*
+!**/.env.example
+**/__pycache__
+apps/mobile

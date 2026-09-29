@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://learni.app/contracts/avatar-manifest/1.0.0",
+  "title": "AvatarManifest",
+  "description": "Avatar-Paket = .riv + manifest.json mit festem Input-Vertrag.",
+  "type": "object",
+  "required": ["manifest_version", "id", "name", "riv_file", "state_machine", "inputs"],
+  "additionalProperties": false,
+  "properties": {
+    "manifest_version": { "const": "1.0.0" },
+    "id": { "type": "string", "pattern": "^[a-z0-9_-]+$" },
+    "name": { "type": "string" },
+    "riv_file": { "type": "string", "pattern": "\\.riv$" },
+    "state_machine": { "type": "string" },
+    "inputs": {
+      "type": "object",
+      "required": ["viseme", "emotion", "gaze_x", "gaze_y", "speaking"],
+      "additionalProperties": false,
+      "properties": {
+        "viseme": { "type": "object", "required": ["name", "min", "max"], "properties": { "name": { "type": "string" }, "min": { "const": 0 }, "max": { "const": 21 } } },
+        "emotion": { "type": "object", "required": ["name", "values"], "properties": { "name": { "type": "string" }, "values": { "type": "array", "items": { "enum": ["neutral", "happy", "encouraging", "thinking", "surprised", "sad", "celebrate"] }, "minItems": 7, "maxItems": 7, "uniqueItems": true } } },
+        "gaze_x": { "type": "object", "required": ["name"], "properties": { "name": { "type": "string" } } },
+        "gaze_y": { "type": "object", "required": ["name"], "properties": { "name": { "type": "string" } } },
+        "speaking": { "type": "object", "required": ["name"], "properties": { "name": { "type": "string" } } }
+      }
+    },
+    "outfit_slots": { "type": "array", "items": { "type": "object", "required": ["slot", "input"], "properties": { "slot": { "enum": ["hat", "glasses", "top", "background"] }, "input": { "type": "string" }, "variants": { "type": "integer", "minimum": 1 } } } },
+    "license": { "type": "string" }
+  }
+}

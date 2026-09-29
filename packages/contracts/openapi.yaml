@@ -1,0 +1,338 @@
+openapi: 3.1.0
+info:
+  title: Learni API
+  version: 1.0.0
+  description: Contract-first. Aenderungen nur abwaertskompatibel oder mit Versionssprung (/v2).
+servers:
+  - url: http://localhost:8000
+security:
+  - bearerAuth: []
+paths:
+  /health:
+    get:
+      security: []
+      summary: Liveness
+      responses:
+        "200": { description: ok, content: { application/json: { schema: { $ref: "#/components/schemas/Health" } } } }
+  /v1/config:
+    get:
+      security: []
+      summary: Remote Config (Preise, Limits, Feature-Flags)
+      responses:
+        "200": { description: ok, content: { application/json: { schema: { type: object, additionalProperties: true } } } }
+  /v1/languages:
+    get:
+      security: []
+      summary: Sprachen inkl. Tier
+      responses:
+        "200": { description: ok, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/Language" } } } } }
+  /v1/auth/sync:
+    post:
+      summary: Legt Profil/Mitgliedschaft nach Login an (idempotent)
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/AuthSyncRequest" } } } }
+      responses:
+        "200": { description: ok, content: { application/json: { schema: { $ref: "#/components/schemas/UserState" } } } }
+  /v1/profile:
+    get:
+      summary: Profil lesen
+      responses: { "200": { description: ok, content: { application/json: { schema: { $ref: "#/components/schemas/Profile" } } } } }
+    patch:
+      summary: Profil/Einstellungen aendern
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/ProfilePatch" } } } }
+      responses: { "200": { description: ok, content: { application/json: { schema: { $ref: "#/components/schemas/Profile" } } } } }
+  /v1/onboarding:
+    post:
+      summary: Onboarding speichern (Level, Ziel, Tagesziel)
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/OnboardingRequest" } } } }
+      responses: { "200": { description: Lernplan, content: { application/json: { schema: { $ref: "#/components/schemas/LearningPlan" } } } } }
+  /v1/state:
+    get:
+      summary: Aktueller Lernstand, Herzen, Streak, Budget
+      parameters: [ { name: language, in: query, required: true, schema: { type: string } } ]
+      responses: { "200": { description: ok, content: { application/json: { schema: { $ref: "#/components/schemas/UserState" } } } } }
+  /v1/plan:
+    get:
+      summary: Lernplan
+      parameters: [ { name: language, in: query, required: true, schema: { type: string } } ]
+      responses: { "200": { description: ok, content: { application/json: { schema: { $ref: "#/components/schemas/LearningPlan" } } } } }
+  /v1/exercises/next:
+    post:
+      summary: Orchestrator waehlt naechste Uebung (deterministisch)
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/NextExerciseRequest" } } } }
+      responses: { "200": { description: ok, content: { application/json: { schema: { $ref: "#/components/schemas/NextExerciseResponse" } } } } }
+  /v1/exercises/{exercise_id}/answer:
+    post:
+      summary: Antwort auswerten
+      parameters: [ { name: exercise_id, in: path, required: true, schema: { type: string } } ]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/AnswerRequest" } } } }
+      responses: { "200": { description: ok, content: { application/json: { schema: { $ref: "#/components/schemas/AnswerResponse" } } } } }
+  /v1/lessons/complete:
+    post:
+      summary: Lektion abschliessen (XP, Streak, Tagesziel)
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/LessonCompleteRequest" } } } }
+      responses: { "200": { description: ok, content: { application/json: { schema: { $ref: "#/components/schemas/EventsResponse" } } } } }
+  /v1/voice/turn:
+    post:
+      summary: Ein Sprach-Turn (STT, LLM, TTS). Audio wird nie gespeichert.
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/VoiceTurnRequest" } } } }
+      responses: { "200": { description: ok, content: { application/json: { schema: { $ref: "#/components/schemas/VoiceTurnResponse" } } } } }
+  /v1/ads/rewarded:
+    post:
+      summary: Freiwillige Rewarded Ad wurde angesehen -> 1 Herz
+      responses: { "200": { description: ok, content: { application/json: { schema: { $ref: "#/components/schemas/EventsResponse" } } } } }
+  /v1/explain:
+    post:
+      summary: Kurzerklaerung eines Items in der UI-Sprache (gecacht)
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/ExplainRequest" } } } }
+      responses: { "200": { description: ok, content: { application/json: { schema: { $ref: "#/components/schemas/ExplainResponse" } } } } }
+  /v1/tutor-profile:
+    get:
+      summary: KI-Nutzerprofil einsehen
+      parameters: [ { name: language, in: query, required: true, schema: { type: string } } ]
+      responses: { "200": { description: ok, content: { application/json: { schema: { $ref: "#/components/schemas/TutorProfile" } } } } }
+    delete:
+      summary: KI-Nutzerprofil loeschen
+      parameters: [ { name: language, in: query, required: true, schema: { type: string } } ]
+      responses: { "204": { description: geloescht } }
+  /v1/export:
+    get:
+      summary: Datenexport (DSGVO Art. 20)
+      responses: { "200": { description: ok, content: { application/json: { schema: { type: object, additionalProperties: true } } } } }
+  /v1/account:
+    delete:
+      summary: Konto vollstaendig loeschen (inkl. Lernermodell und KI-Profil)
+      responses: { "204": { description: geloescht } }
+  /v1/analytics/events:
+    post:
+      summary: KPI-Events
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/AnalyticsEvent" } } } }
+      responses: { "202": { description: angenommen } }
+  /v1/webhooks/revenuecat:
+    post:
+      security: []
+      summary: RevenueCat-Webhook (Signaturpruefung per Authorization-Header)
+      requestBody: { required: true, content: { application/json: { schema: { type: object, additionalProperties: true } } } }
+      responses: { "200": { description: ok }, "401": { description: ungueltige Signatur } }
+  /v1/dev/membership:
+    post:
+      summary: NUR APP_ENV=dev - Mock-Sandbox schaltet Free/Pro
+      requestBody: { required: true, content: { application/json: { schema: { type: object, required: [tier], properties: { tier: { enum: [free, pro] } } } } } }
+      responses: { "200": { description: ok, content: { application/json: { schema: { $ref: "#/components/schemas/UserState" } } } }, "404": { description: nicht in Produktion } }
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
+  schemas:
+    Health:
+      type: object
+      required: [status, mock_providers]
+      properties:
+        status: { type: string }
+        mock_providers: { type: array, items: { type: string } }
+        version: { type: string }
+    Language:
+      type: object
+      required: [code, name, native_name, tier, badge]
+      properties:
+        code: { type: string }
+        name: { type: string }
+        native_name: { type: string }
+        tier: { enum: [A, B, C] }
+        badge: { type: string, description: "Kuerzel fuer Icon, keine Flagge" }
+        region_variants: { type: array, items: { type: string } }
+    AuthSyncRequest:
+      type: object
+      properties:
+        native_language: { type: string }
+        ui_language: { enum: [de, en] }
+        display_name: { type: string, maxLength: 60 }
+        region: { type: string, pattern: "^[A-Z]{2}$", description: "ISO-Land des Geraets (Geo-Tiering der Kostenlimits)" }
+    ProfilePatch:
+      type: object
+      additionalProperties: false
+      properties:
+        display_name: { type: string, maxLength: 60 }
+        native_language: { type: string }
+        ui_language: { enum: [de, en] }
+        age_bracket: { enum: [under_16, "16_17", "18_plus"] }
+        settings: { $ref: "#/components/schemas/Settings" }
+        consents: { $ref: "#/components/schemas/Consents" }
+    Settings:
+      type: object
+      additionalProperties: false
+      properties:
+        avatar_voice: { type: boolean }
+        sfx: { type: boolean }
+        haptics: { type: boolean }
+        show_translation: { type: boolean }
+        auto_vad: { type: boolean }
+    Consents:
+      type: object
+      additionalProperties: false
+      properties:
+        voice_processing: { type: boolean }
+        personalized_ads: { type: boolean }
+        analytics: { type: boolean }
+    Profile:
+      type: object
+      required: [user_id, ui_language, native_language, settings, consents]
+      properties:
+        user_id: { type: string }
+        display_name: { type: [string, "null"] }
+        native_language: { type: string }
+        ui_language: { type: string }
+        age_bracket: { type: [string, "null"] }
+        avatar: { type: object, additionalProperties: true }
+        settings: { $ref: "#/components/schemas/Settings" }
+        consents: { $ref: "#/components/schemas/Consents" }
+    Membership:
+      type: object
+      required: [tier, status]
+      properties:
+        tier: { enum: [free, pro] }
+        status: { type: string }
+        trial: { type: boolean }
+        expires_at: { type: [string, "null"] }
+        source: { type: string }
+        regional_tier: { type: string }
+    BudgetState:
+      type: object
+      required: [ai_seconds_used, ai_seconds_limit, cost_cents_used, cost_cents_limit, limited]
+      properties:
+        ai_seconds_used: { type: integer }
+        ai_seconds_limit: { type: integer }
+        cost_cents_used: { type: number }
+        cost_cents_limit: { type: number }
+        limited: { type: boolean }
+    UserState:
+      type: object
+      required: [profile, membership, learning]
+      properties:
+        profile: { $ref: "#/components/schemas/Profile" }
+        membership: { $ref: "#/components/schemas/Membership" }
+        learning: { $ref: "#/components/schemas/LearningState" }
+        budget: { $ref: "#/components/schemas/BudgetState" }
+    LearningState:
+      type: object
+      properties:
+        language: { type: string }
+        level: { enum: [A1, A2, B1, B2] }
+        goal: { type: string }
+        daily_goal_minutes: { type: integer }
+        daily_xp: { type: integer }
+        daily_xp_target: { type: integer }
+        xp: { type: integer }
+        streak_days: { type: integer }
+        streak_freezes: { type: integer }
+        hearts: { type: integer }
+        max_hearts: { type: [integer, "null"] }
+        unlimited_hearts: { type: boolean }
+        trophies: { type: array, items: { type: string } }
+        skills: { type: object, additionalProperties: { type: number } }
+    OnboardingRequest:
+      type: object
+      required: [language, self_level, goal, daily_goal_minutes]
+      properties:
+        language: { type: string }
+        self_level: { enum: [none, few_words, simple_conversations, everyday] }
+        adaptive_answers: { type: array, maxItems: 5, items: { type: object, required: [item_id, correct], properties: { item_id: { type: string }, correct: { type: boolean } } } }
+        goal: { enum: [travel, work, family, fun] }
+        daily_goal_minutes: { enum: [5, 10, 15, 20] }
+    LearningPlan:
+      type: object
+      required: [language, level, weeks_to_next_level, daily_goal_minutes, topics, paywall_trigger]
+      properties:
+        language: { type: string }
+        level: { type: string }
+        weeks_to_next_level: { type: integer }
+        daily_goal_minutes: { type: integer }
+        topics: { type: array, items: { type: string } }
+        paywall_trigger: { const: onboarding_plan }
+    NextExerciseRequest:
+      type: object
+      required: [language]
+      properties:
+        language: { type: string }
+        mode: { enum: [curriculum, conversation] }
+    NextExerciseResponse:
+      type: object
+      required: [exercise, events]
+      properties:
+        exercise: { $ref: "schemas/exercise.schema.json" }
+        events: { type: array, items: { $ref: "schemas/events.schema.json" } }
+        test_mode: { type: boolean }
+    AnswerRequest:
+      type: object
+      required: [language, answer]
+      properties:
+        language: { type: string }
+        answer: { oneOf: [ { type: string }, { type: array, items: { type: string } } ] }
+        response_ms: { type: integer, minimum: 0 }
+        pronunciation_score: { type: number, minimum: 0, maximum: 100 }
+    AnswerResponse:
+      type: object
+      required: [events]
+      properties:
+        events: { type: array, items: { $ref: "schemas/events.schema.json" } }
+    EventsResponse:
+      type: object
+      required: [events]
+      properties:
+        events: { type: array, items: { $ref: "schemas/events.schema.json" } }
+    LessonCompleteRequest:
+      type: object
+      required: [language, xp, mistakes, minutes]
+      properties:
+        language: { type: string }
+        xp: { type: integer, minimum: 0, maximum: 500 }
+        mistakes: { type: integer, minimum: 0 }
+        minutes: { type: number, minimum: 0, maximum: 120 }
+    VoiceTurnRequest:
+      type: object
+      required: [language]
+      properties:
+        language: { type: string, description: "Lernsprache = STT-Sprach-Hint" }
+        audio_b64: { type: string, description: "PCM/WAV, nur im Speicher verarbeitet, nie persistiert" }
+        audio_seconds: { type: number, maximum: 60 }
+        audio_mime: { enum: [audio/wav, audio/mp4, audio/mpeg, audio/webm, audio/ogg], default: audio/wav }
+        text: { type: string, maxLength: 500, description: "Fallback ohne Audio" }
+        slow: { type: boolean }
+        exercise_id: { type: string }
+    VoiceTurnResponse:
+      type: object
+      required: [transcript, events, latency_ms]
+      properties:
+        transcript: { type: string }
+        events: { type: array, items: { $ref: "schemas/events.schema.json" } }
+        latency_ms: { type: object, additionalProperties: { type: number } }
+        test_mode: { type: boolean }
+    ExplainRequest:
+      type: object
+      required: [language, item_id]
+      properties:
+        language: { type: string }
+        item_id: { type: string }
+    ExplainResponse:
+      type: object
+      required: [text, cached]
+      properties:
+        text: { type: string }
+        cached: { type: boolean }
+        test_mode: { type: boolean }
+        events: { type: array, items: { $ref: "schemas/events.schema.json" } }
+    TutorProfile:
+      type: object
+      properties:
+        language: { type: string }
+        goals: { type: array, items: { type: string } }
+        interests: { type: array, items: { type: string } }
+        typical_mistakes: { type: array, items: { type: string } }
+        pace: { type: string }
+        preferences: { type: object, additionalProperties: true }
+        updated_at: { type: string }
+    AnalyticsEvent:
+      type: object
+      required: [name]
+      properties:
+        name: { enum: [app_open, trial_start, trial_converted, purchase, ad_impression, lesson_complete, voice_turn, error, paywall_shown] }
+        language: { type: string }
+        props: { type: object, additionalProperties: true }

@@ -1,0 +1,5 @@
+id: cafe
+title: {de: "Im Café bestellen", en: "Ordering at a café"}
+min_level: A1
+pro_only: true
+setup: "Du bist Kellner:in in einem Café. Die lernende Person bestellt etwas zu trinken. Stelle einfache Fragen (Was möchten Sie? Noch etwas?)."
