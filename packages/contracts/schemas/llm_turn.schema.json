@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://learni.app/contracts/llm_turn/1.0.0",
+  "title": "LLMTurn",
+  "description": "Einzige erlaubte Ausgabe des LLM. Alles andere wird verworfen.",
+  "type": "object",
+  "required": ["say", "exercise_type", "expected_answer"],
+  "additionalProperties": false,
+  "properties": {
+    "say": { "type": "string", "minLength": 1, "maxLength": 400 },
+    "exercise_type": { "enum": ["multiple_choice", "matching", "fill_blank", "listen_pick", "speak_repeat", "word_order", "roleplay", "flashcard", "none"] },
+    "options": { "type": "array", "items": { "type": "string", "maxLength": 120 }, "maxItems": 8 },
+    "expected_answer": { "type": ["string", "array", "null"] },
+    "hint": { "type": ["string", "null"], "maxLength": 300 }
+  }
+}

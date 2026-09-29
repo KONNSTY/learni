@@ -1,0 +1,9 @@
+{
+  "_comment": "Stimmennamen [UNVERIFIZIERT] - vor Launch gegen aktuelle Azure-/Piper-Listen pruefen.",
+  "es": {"azure": "es-ES-ElviraNeural", "azure_locale": "es-ES", "piper": "es_ES-davefx-medium"},
+  "en": {"azure": "en-US-JennyNeural", "azure_locale": "en-US", "piper": "en_US-lessac-medium"},
+  "fr": {"azure": "fr-FR-DeniseNeural", "azure_locale": "fr-FR", "piper": "fr_FR-siwis-medium"},
+  "hr": {"azure": "hr-HR-GabrijelaNeural", "azure_locale": "hr-HR", "piper": null},
+  "id": {"azure": "id-ID-GadisNeural", "azure_locale": "id-ID", "piper": null},
+  "tr": {"azure": "tr-TR-EmelNeural", "azure_locale": "tr-TR", "piper": "tr_TR-dfki-medium"}
+}

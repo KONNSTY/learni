@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://learni.app/contracts/exercise/1.0.0",
+  "title": "Exercise",
+  "description": "Uebungen sind Daten. Das Frontend rendert sie ueber eine Renderer-Registry pro `type`.",
+  "type": "object",
+  "required": ["schema_version", "id", "type", "language", "item_id", "skill", "prompt", "content", "decidable"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "id": { "type": "string", "minLength": 1 },
+    "type": { "enum": ["multiple_choice", "matching", "fill_blank", "listen_pick", "speak_repeat", "word_order", "roleplay", "flashcard"] },
+    "language": { "type": "string", "pattern": "^[a-z]{2,3}(-[A-Z]{2})?$" },
+    "item_id": { "type": "string" },
+    "skill": { "enum": ["listening", "speaking", "vocabulary", "grammar"] },
+    "level": { "enum": ["A1", "A2", "B1", "B2"] },
+    "decidable": { "type": "boolean", "description": "true: richtig/falsch entscheidbar, Fehler kosten Herzen. false: nie Herzverlust." },
+    "prompt": {
+      "type": "object",
+      "required": ["say"],
+      "additionalProperties": false,
+      "properties": {
+        "say": { "type": "string", "maxLength": 400 },
+        "translation": { "type": "string", "maxLength": 400 },
+        "audio_url": { "type": ["string", "null"] },
+        "hint": { "type": ["string", "null"], "maxLength": 300 }
+      }
+    },
+    "content": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "options": { "type": "array", "items": { "type": "string", "maxLength": 120 }, "maxItems": 8 },
+        "pairs": { "type": "array", "items": { "type": "object", "required": ["left", "right"], "properties": { "left": { "type": "string" }, "right": { "type": "string" } }, "additionalProperties": false }, "maxItems": 8 },
+        "tokens": { "type": "array", "items": { "type": "string" }, "maxItems": 12 },
+        "sentence_with_blank": { "type": "string" },
+        "scenario": { "type": "string" },
+        "target_text": { "type": "string" }
+      }
+    },
+    "expected_answer": { "description": "Wird NICHT an das Frontend gesendet (Auswertung im Backend). Nur in internen Speichermodellen.", "type": ["string", "array", "null"] },
+    "source": { "enum": ["curriculum", "llm", "mock"] },
+    "pack_status": { "enum": ["draft", "reviewed", "published"] }
+  }
+}

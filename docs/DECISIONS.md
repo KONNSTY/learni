@@ -8,7 +8,7 @@ Format: `[ANNAHME]` = eigene Entscheidung ohne Vorgabe, `[UNVERIFIZIERT]` = nich
 | Frontend-Stack | React Native + Expo, TypeScript strikt, Reanimated, Rive | `apps/mobile` |
 | UI-Sprachen | Deutsch, Englisch | `apps/mobile/src/i18n` |
 | Launch-Sprachen | Englisch, Spanisch, Französisch (groß); Kroatisch, Indonesisch, Türkisch (Long-Tail). Tier A stabil, B gut, C Beta | `content/languages.json` |
-| Avatar | 2D-Platzhalter, echter Avatar später als Paket (`.riv` + `manifest.json`) | `packages/contracts/avatar-manifest.schema.json` |
+| Avatar | 2D-Platzhalter, echter Avatar später als Paket (`.riv` + `manifest.json`) | `packages/contracts/schemas/avatar-manifest.schema.json` |
 | Preise | 10–13 €/Monat, 60–80 €/Jahr, Trial 7 Tage – nur Konfiguration | `apps/api/learni_api/remote_config.json` |
 | Content-Review | `draft` → `reviewed` → `published`; nur `reviewed`/`published` an Nutzer, `draft` nur im Testmodus mit Beta-Label | `content/packs`, `apps/api/learni_api/content.py` |
 

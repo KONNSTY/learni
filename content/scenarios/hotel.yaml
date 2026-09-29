@@ -1,0 +1,5 @@
+id: hotel
+title: {de: "Im Hotel einchecken", en: "Checking in at a hotel"}
+min_level: A2
+pro_only: true
+setup: "Du bist Rezeptionist:in. Die lernende Person checkt ein. Frage nach Name, Nächten und Zimmerwunsch."

@@ -1,0 +1,150 @@
+{
+  "schema_version": "1.0.0",
+  "pack_id": "es-a1-basics",
+  "language": "es",
+  "level": "A1",
+  "topic": "basics",
+  "status": "draft",
+  "reviewer": null,
+  "items": [
+    {
+      "item_id": "es.hello",
+      "lemma": "hola",
+      "translations": {
+        "de": "hallo",
+        "en": "hello"
+      },
+      "frequency_rank": 1,
+      "skill_tags": [
+        "vocabulary",
+        "listening",
+        "speaking"
+      ]
+    },
+    {
+      "item_id": "es.goodbye",
+      "lemma": "adiós",
+      "translations": {
+        "de": "tschüss",
+        "en": "goodbye"
+      },
+      "frequency_rank": 2,
+      "skill_tags": [
+        "vocabulary",
+        "listening",
+        "speaking"
+      ]
+    },
+    {
+      "item_id": "es.please",
+      "lemma": "por favor",
+      "translations": {
+        "de": "bitte",
+        "en": "please"
+      },
+      "frequency_rank": 3,
+      "skill_tags": [
+        "vocabulary",
+        "listening",
+        "speaking"
+      ]
+    },
+    {
+      "item_id": "es.thanks",
+      "lemma": "gracias",
+      "translations": {
+        "de": "danke",
+        "en": "thank you"
+      },
+      "frequency_rank": 4,
+      "skill_tags": [
+        "vocabulary",
+        "listening",
+        "speaking"
+      ]
+    },
+    {
+      "item_id": "es.yes",
+      "lemma": "sí",
+      "translations": {
+        "de": "ja",
+        "en": "yes"
+      },
+      "frequency_rank": 5,
+      "skill_tags": [
+        "vocabulary",
+        "listening",
+        "speaking"
+      ]
+    },
+    {
+      "item_id": "es.no",
+      "lemma": "no",
+      "translations": {
+        "de": "nein",
+        "en": "no"
+      },
+      "frequency_rank": 6,
+      "skill_tags": [
+        "vocabulary",
+        "listening",
+        "speaking"
+      ]
+    },
+    {
+      "item_id": "es.morning",
+      "lemma": "buenos días",
+      "translations": {
+        "de": "guten Morgen",
+        "en": "good morning"
+      },
+      "frequency_rank": 7,
+      "skill_tags": [
+        "vocabulary",
+        "listening",
+        "speaking"
+      ]
+    },
+    {
+      "item_id": "es.how",
+      "lemma": "¿cómo estás?",
+      "translations": {
+        "de": "wie geht es dir?",
+        "en": "how are you?"
+      },
+      "frequency_rank": 8,
+      "skill_tags": [
+        "vocabulary",
+        "listening",
+        "speaking"
+      ]
+    }
+  ],
+  "sentences": [
+    {
+      "id": "es.s.hola_como",
+      "text": "Hola, ¿cómo estás?",
+      "translations": {
+        "de": "Hallo, wie geht es dir?",
+        "en": "Hi, how are you?"
+      },
+      "tokens": [
+        "Hola",
+        "¿cómo",
+        "estás?"
+      ]
+    },
+    {
+      "id": "es.s.gracias",
+      "text": "Muchas gracias",
+      "translations": {
+        "de": "Vielen Dank",
+        "en": "Thank you very much"
+      },
+      "tokens": [
+        "Muchas",
+        "gracias"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,220 @@
+{
+  "schema_version": "1.0.0",
+  "pack_id": "es-a1-food_drink",
+  "language": "es",
+  "level": "A1",
+  "topic": "food_drink",
+  "status": "draft",
+  "reviewer": null,
+  "items": [
+    {
+      "item_id": "es.water",
+      "lemma": "agua",
+      "translations": {
+        "de": "Wasser",
+        "en": "water"
+      },
+      "frequency_rank": 20,
+      "skill_tags": [
+        "vocabulary",
+        "listening",
+        "speaking"
+      ]
+    },
+    {
+      "item_id": "es.coffee",
+      "lemma": "café",
+      "translations": {
+        "de": "Kaffee",
+        "en": "coffee"
+      },
+      "frequency_rank": 21,
+      "skill_tags": [
+        "vocabulary",
+        "listening",
+        "speaking"
+      ]
+    },
+    {
+      "item_id": "es.milk",
+      "lemma": "leche",
+      "translations": {
+        "de": "Milch",
+        "en": "milk"
+      },
+      "frequency_rank": 22,
+      "skill_tags": [
+        "vocabulary",
+        "listening",
+        "speaking"
+      ]
+    },
+    {
+      "item_id": "es.bread",
+      "lemma": "pan",
+      "translations": {
+        "de": "Brot",
+        "en": "bread"
+      },
+      "frequency_rank": 23,
+      "skill_tags": [
+        "vocabulary",
+        "listening",
+        "speaking"
+      ]
+    },
+    {
+      "item_id": "es.house",
+      "lemma": "casa",
+      "translations": {
+        "de": "Haus",
+        "en": "house"
+      },
+      "frequency_rank": 24,
+      "skill_tags": [
+        "vocabulary",
+        "listening",
+        "speaking"
+      ]
+    },
+    {
+      "item_id": "es.cat",
+      "lemma": "gato",
+      "translations": {
+        "de": "Katze",
+        "en": "cat"
+      },
+      "frequency_rank": 25,
+      "skill_tags": [
+        "vocabulary",
+        "listening",
+        "speaking"
+      ]
+    },
+    {
+      "item_id": "es.dog",
+      "lemma": "perro",
+      "translations": {
+        "de": "Hund",
+        "en": "dog"
+      },
+      "frequency_rank": 26,
+      "skill_tags": [
+        "vocabulary",
+        "listening",
+        "speaking"
+      ]
+    },
+    {
+      "item_id": "es.beer",
+      "lemma": "cerveza",
+      "translations": {
+        "de": "Bier",
+        "en": "beer"
+      },
+      "frequency_rank": 27,
+      "skill_tags": [
+        "vocabulary",
+        "listening",
+        "speaking"
+      ]
+    },
+    {
+      "item_id": "es.wine",
+      "lemma": "vino",
+      "translations": {
+        "de": "Wein",
+        "en": "wine"
+      },
+      "frequency_rank": 28,
+      "skill_tags": [
+        "vocabulary",
+        "listening",
+        "speaking"
+      ]
+    },
+    {
+      "item_id": "es.tea",
+      "lemma": "té",
+      "translations": {
+        "de": "Tee",
+        "en": "tea"
+      },
+      "frequency_rank": 29,
+      "skill_tags": [
+        "vocabulary",
+        "listening",
+        "speaking"
+      ]
+    }
+  ],
+  "sentences": [
+    {
+      "id": "es.s.quiero_cafe",
+      "text": "Quiero un café",
+      "translations": {
+        "de": "Ich möchte einen Kaffee",
+        "en": "I would like a coffee"
+      },
+      "tokens": [
+        "Quiero",
+        "un",
+        "café"
+      ]
+    },
+    {
+      "id": "es.s.agua_favor",
+      "text": "Agua, por favor",
+      "translations": {
+        "de": "Wasser, bitte",
+        "en": "Water, please"
+      },
+      "tokens": [
+        "Agua,",
+        "por",
+        "favor"
+      ]
+    }
+  ],
+  "blanks": [
+    {
+      "id": "es.b.querer_1",
+      "sentence": "Yo ___ un café.",
+      "answer": "quiero",
+      "options": [
+        "quiero",
+        "quieres",
+        "quiere"
+      ],
+      "translations": {
+        "de": "Ich möchte einen Kaffee.",
+        "en": "I would like a coffee."
+      },
+      "grammar_point": "es.querer_present"
+    },
+    {
+      "id": "es.b.querer_2",
+      "sentence": "Tú ___ agua.",
+      "answer": "quieres",
+      "options": [
+        "quiero",
+        "quieres",
+        "quiere"
+      ],
+      "translations": {
+        "de": "Du möchtest Wasser.",
+        "en": "You want water."
+      },
+      "grammar_point": "es.querer_present"
+    }
+  ],
+  "grammar": [
+    {
+      "id": "es.querer_present",
+      "title": {
+        "de": "querer im Präsens",
+        "en": "querer in the present tense"
+      }
+    }
+  ]
+}

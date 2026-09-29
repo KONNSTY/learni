@@ -1,0 +1,141 @@
+{
+  "schema_version": "1.0.0",
+  "pack_id": "id-a1-basics",
+  "language": "id",
+  "level": "A1",
+  "topic": "basics",
+  "status": "draft",
+  "reviewer": null,
+  "items": [
+    {
+      "item_id": "id.hello",
+      "lemma": "halo",
+      "translations": {
+        "de": "hallo",
+        "en": "hello"
+      },
+      "frequency_rank": 1,
+      "skill_tags": [
+        "vocabulary",
+        "listening"
+      ]
+    },
+    {
+      "item_id": "id.thanks",
+      "lemma": "terima kasih",
+      "translations": {
+        "de": "danke",
+        "en": "thank you"
+      },
+      "frequency_rank": 2,
+      "skill_tags": [
+        "vocabulary",
+        "listening"
+      ]
+    },
+    {
+      "item_id": "id.please",
+      "lemma": "tolong",
+      "translations": {
+        "de": "bitte",
+        "en": "please"
+      },
+      "frequency_rank": 3,
+      "skill_tags": [
+        "vocabulary",
+        "listening"
+      ]
+    },
+    {
+      "item_id": "id.water",
+      "lemma": "air",
+      "translations": {
+        "de": "Wasser",
+        "en": "water"
+      },
+      "frequency_rank": 4,
+      "skill_tags": [
+        "vocabulary",
+        "listening"
+      ]
+    },
+    {
+      "item_id": "id.yes",
+      "lemma": "ya",
+      "translations": {
+        "de": "ja",
+        "en": "yes"
+      },
+      "frequency_rank": 5,
+      "skill_tags": [
+        "vocabulary",
+        "listening"
+      ]
+    },
+    {
+      "item_id": "id.no",
+      "lemma": "tidak",
+      "translations": {
+        "de": "nein",
+        "en": "no"
+      },
+      "frequency_rank": 6,
+      "skill_tags": [
+        "vocabulary",
+        "listening"
+      ]
+    },
+    {
+      "item_id": "id.bread",
+      "lemma": "roti",
+      "translations": {
+        "de": "Brot",
+        "en": "bread"
+      },
+      "frequency_rank": 7,
+      "skill_tags": [
+        "vocabulary",
+        "listening"
+      ]
+    },
+    {
+      "item_id": "id.house",
+      "lemma": "rumah",
+      "translations": {
+        "de": "Haus",
+        "en": "house"
+      },
+      "frequency_rank": 8,
+      "skill_tags": [
+        "vocabulary",
+        "listening"
+      ]
+    },
+    {
+      "item_id": "id.cat",
+      "lemma": "kucing",
+      "translations": {
+        "de": "Katze",
+        "en": "cat"
+      },
+      "frequency_rank": 9,
+      "skill_tags": [
+        "vocabulary",
+        "listening"
+      ]
+    },
+    {
+      "item_id": "id.dog",
+      "lemma": "anjing",
+      "translations": {
+        "de": "Hund",
+        "en": "dog"
+      },
+      "frequency_rank": 10,
+      "skill_tags": [
+        "vocabulary",
+        "listening"
+      ]
+    }
+  ]
+}
