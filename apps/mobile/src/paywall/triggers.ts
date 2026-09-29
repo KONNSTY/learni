@@ -12,7 +12,7 @@ export interface PaywallHistory { [trigger: string]: number }
 
 export function shouldShowPaywall(trigger: PaywallTrigger, tier: Tier, history: PaywallHistory, now: number, speaking = false): boolean {
   if (tier === "pro") return false;
-  if (speaking) return false; // nie mitten im Sprechfluss
+  if (speaking) return false; // nie mitten im Sprechfluss (der Aufrufer merkt sich die Anfrage und zeigt sie nach dem Sprechen)
   const last = history[trigger];
   return last === undefined || now - last >= COOLDOWN_MS[trigger];
 }

@@ -2,13 +2,15 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 from pathlib import Path
 from typing import Any
 
 import jsonschema
 
-SCHEMA_PATH = Path(__file__).resolve().parents[3] / "packages" / "contracts" / "schemas" / "llm_turn.schema.json"
+_CONTRACTS = Path(os.environ["CONTRACTS_DIR"]) if os.environ.get("CONTRACTS_DIR") else Path(__file__).resolve().parents[3] / "packages" / "contracts"
+SCHEMA_PATH = _CONTRACTS / "schemas" / "llm_turn.schema.json"
 _SCHEMA: dict[str, Any] | None = None
 
 INJECTION_PATTERNS = [

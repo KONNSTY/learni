@@ -55,6 +55,25 @@ class RateLimiter:
         return True
 
 
+class RedisRateLimiter:
+    """Verteiltes Limit (Fixed Window: `burst` Anfragen je `burst/rate` Sekunden) ueber INCR+EXPIRE.
+    Faellt bei Redis-Fehlern auf den lokalen Token-Bucket zurueck (kein Ausfall der API). [UNVERIFIZIERT gegen echten Redis-Server]"""
+
+    def __init__(self, client, prefix: str = "learni:rl", fallback: RateLimiter | None = None):
+        self.client, self.prefix, self.fallback = client, prefix, fallback or RateLimiter()
+
+    def allow(self, key: str, bucket: str, rate: float, burst: int) -> bool:
+        window = max(1, int(burst / max(rate, 0.001)))
+        k = f"{self.prefix}:{bucket}:{key}"
+        try:
+            n = self.client.incr(k)
+            if n == 1:
+                self.client.expire(k, window)
+            return int(n) <= burst
+        except Exception:  # noqa: BLE001 - jeder Redis-Fehler -> lokaler Fallback
+            return self.fallback.allow(key, bucket, rate, burst)
+
+
 LIMITS = {"voice": (0.2, 12), "exercise": (2.0, 30), "default": (5.0, 60), "webhook": (5.0, 30)}
 
 

@@ -7,7 +7,7 @@ import { createChunkedStorage } from "../src/auth/secureStorage.chunked";
 import { buildQuestions, hasQuestionBank } from "../src/onboarding/questions";
 import { gateFor } from "../src/navigation/gate";
 import { de } from "../src/i18n/de";
-import { isSpeaking, setSpeaking, SPEAKING_TTL_MS } from "../src/state/speaking";
+import { isSpeaking, onSpeakingEnd, setSpeaking, SPEAKING_TTL_MS } from "../src/state/speaking";
 
 describe("base64", () => {
   it("matches Buffer for all padding cases", () => {
@@ -91,11 +91,18 @@ describe("onboarding questions + gating + money", () => {
   it("formats prices per locale", () => { expect(formatMoney(11.99, "EUR", "de")).toMatch(/11,99\s?€/); expect(formatMoney(11.99, "EUR", "en")).toContain("11.99"); });
 });
 
-describe("speaking flag expiry", () => {
+describe("speaking flag", () => {
   it("expires so a missing speech-end callback cannot block paywalls forever", () => {
     setSpeaking(true, 1000);
     expect(isSpeaking(1000 + 5000)).toBe(true);
     expect(isSpeaking(1000 + SPEAKING_TTL_MS + 1)).toBe(false);
     setSpeaking(false); expect(isSpeaking(2000)).toBe(false);
+  });
+  it("notifies listeners when the tutor stops so deferred paywalls can be shown", () => {
+    let n = 0; const off = onSpeakingEnd(() => { n++; });
+    setSpeaking(true); setSpeaking(false);
+    expect(n).toBe(1);
+    setSpeaking(false); expect(n).toBe(1); // kein Doppelaufruf
+    off();
   });
 });

@@ -23,7 +23,7 @@ from .content import ContentLibrary
 from .events import ev
 from .prompts import PromptLibrary
 from .providers.factory import Providers, build_providers
-from .security import RateLimiter, SecurityHeadersMiddleware, enforce, safe_compare
+from .security import RateLimiter, RedisRateLimiter, SecurityHeadersMiddleware, enforce, safe_compare
 from .service import DomainError, Service
 from .store import MemoryStore, Store
 from .voice.pipeline import LatencyTracker, TurnInput, VoicePipeline
@@ -60,7 +60,7 @@ def create_app(settings: Settings | None = None, store: Store | None = None, pro
 
     app = FastAPI(title="Learni API", version=VERSION, lifespan=lifespan, docs_url="/docs" if settings.is_dev else None, redoc_url=None, openapi_url="/openapi.json" if settings.is_dev else None)
     app.state.settings, app.state.cfg, app.state.store, app.state.svc = settings, cfg, store, svc
-    app.state.providers, app.state.pipeline, app.state.latency, app.state.limiter = providers, pipeline, latency, RateLimiter()
+    app.state.providers, app.state.pipeline, app.state.latency, app.state.limiter = providers, pipeline, latency, _make_limiter(settings)
     app.add_middleware(SecurityHeadersMiddleware)
     app.add_middleware(CORSMiddleware, allow_origins=settings.cors_origins, allow_methods=["GET", "POST", "PATCH", "DELETE"], allow_headers=["Authorization", "Content-Type"], max_age=600)
 
@@ -256,6 +256,16 @@ def create_app(settings: Settings | None = None, store: Store | None = None, pro
         return code
 
     return app
+
+
+def _make_limiter(settings: Settings):
+    if settings.redis_url:
+        try:
+            import redis  # optionale Abhaengigkeit: pip install 'learni-api[redis]'
+            return RedisRateLimiter(redis.Redis.from_url(settings.redis_url, socket_timeout=0.3, socket_connect_timeout=0.3))
+        except ImportError:
+            log.warning("REDIS_URL gesetzt, aber Paket 'redis' fehlt -> lokaler Rate-Limiter")
+    return RateLimiter()
 
 
 def _apply_revenuecat(svc: Service, e: dict[str, Any]) -> dict[str, Any]:

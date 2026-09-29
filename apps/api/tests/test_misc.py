@@ -290,3 +290,28 @@ def test_kpi_report_covers_required_kpis():
     assert r["dau"] == 2 and r["retention"]["d1"] == 0.5 and r["retention"]["d7"] == 1.0 and r["retention"]["d30"] is None
     assert r["trial_to_paid"] == 1.0 and r["cogs_cents_per_dau"] == 1.0 and r["ad_arpdau_cents"] == 0.25
     assert r["latency_p95_ms"] == 1700 and r["error_rate_per_language"] == {"es": 0.5}
+
+
+def test_redis_rate_limiter_fixed_window_and_fallback():
+    class FakeRedis:
+        def __init__(self):
+            self.d, self.ttl = {}, {}
+
+        def incr(self, k):
+            self.d[k] = self.d.get(k, 0) + 1
+            return self.d[k]
+
+        def expire(self, k, s):
+            self.ttl[k] = s
+
+    r = FakeRedis()
+    rl = security.RedisRateLimiter(r)
+    assert [rl.allow("u", "b", 1.0, 3) for _ in range(5)] == [True, True, True, False, False]
+    assert rl.allow("other", "b", 1.0, 3) and list(r.ttl.values())[0] == 3
+
+    class Broken:
+        def incr(self, k):
+            raise ConnectionError("down")
+
+    rl2 = security.RedisRateLimiter(Broken())
+    assert [rl2.allow("u", "b", 1.0, 2) for _ in range(3)] == [True, True, False]  # lokaler Fallback greift

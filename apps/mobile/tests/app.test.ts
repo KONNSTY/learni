@@ -74,6 +74,18 @@ describe("http api client", () => {
   });
 });
 
+describe("release safety (no silent mock in release builds)", () => {
+  it("resolveApiMode", async () => {
+    const { resolveApiMode } = await import("../src/config/env");
+    expect(resolveApiMode({}, true)).toBe("mock");                                   // Debug ohne URL: Mock (Expo Go)
+    expect(resolveApiMode({ url: "https://x" }, true)).toBe("http");
+    expect(resolveApiMode({}, false)).toBe("http");                                  // Release ohne URL: kein stiller Mock
+    expect(resolveApiMode({ mode: "mock" }, false)).toBe("http");                    // Release ignoriert mock
+    expect(resolveApiMode({ mode: "mock", allowMock: "true" }, false)).toBe("mock"); // nur bewusst erlaubt
+    expect(resolveApiMode({ mode: "http" }, true)).toBe("http");
+  });
+});
+
 describe("no secrets in client env", () => {
   it("env config only exposes EXPO_PUBLIC_* values", () => {
     const src = readFileSync(join(__dirname, "../src/config/env.ts"), "utf8");

@@ -5,7 +5,7 @@ import { Button } from "../components/Button";
 import { Chip } from "../components/Chip";
 import { Screen } from "../components/Screen";
 import { Text } from "../components/Text";
-import { env } from "../config/env";
+import { env, mockAllowed } from "../config/env";
 import { useI18n } from "../i18n";
 import type { RootStackParamList } from "../navigation/types";
 import { devSetTier, patchProfile, saveThemeMode, signOut } from "../state/controller";
@@ -47,7 +47,7 @@ export function ProfileScreen({ navigation }: NativeStackScreenProps<RootStackPa
         <Button variant="secondary" label={t("settings.privacy")} onPress={() => navigation.navigate("Consent", { mode: "settings" })} />
         <Button variant="secondary" label={t("settings.tutorProfile")} onPress={() => navigation.navigate("TutorProfile")} />
         <Button variant="secondary" label={t("settings.export")} onPress={() => void exportData()} />
-        {(__DEV__ || env.apiMode === "mock") && <Button testID="dev-toggle-pro" variant="ghost" label={`Test: ${user?.membership.tier === "pro" ? "→ Free" : "→ Pro"}`} onPress={() => void devSetTier(user?.membership.tier === "pro" ? "free" : "pro")} />}
+        {mockAllowed && env.apiMode === "mock" || __DEV__ ? <Button testID="dev-toggle-pro" variant="ghost" label={`Test: ${user?.membership.tier === "pro" ? "→ Free" : "→ Pro"}`} onPress={() => void devSetTier(user?.membership.tier === "pro" ? "free" : "pro")} /> : null}
         <Button variant="ghost" label={t("settings.signOut")} onPress={() => Alert.alert(t("settings.signOut"), undefined, [{ text: t("common.cancel"), style: "cancel" }, { text: t("settings.signOut"), onPress: () => void signOut() }])} />
         <Button testID="delete-account" variant="danger" label={t("settings.delete")} onPress={() => navigation.navigate("DeleteAccount")} />
         <Text variant="caption" color="textMuted" center>{t("ai.notice")}</Text>

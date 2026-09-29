@@ -43,8 +43,8 @@ for (let i = 0; i < 8; i++) {
   else if (await tid("play-button").count()) { seen.add("listen_pick"); await tid("option-").first().click().catch(() => {}); await page.locator('[role="button"][data-testid^="option-"]').first().click(); await click("check-button"); }
   else if (await page.locator('[data-testid^="token-"]').count()) { seen.add("word_order"); const n = await page.locator('[data-testid^="token-"]').count(); for (let k = 0; k < n; k++) await page.locator('[data-testid^="token-"]').first().click(); await click("check-button"); }
   else if (await page.locator('[data-testid^="left-"]').count()) { seen.add("matching"); const n = await page.locator('[data-testid^="left-"]').count(); for (let k = 0; k < n; k++) { await page.locator('[data-testid^="left-"]').nth(k).click(); await page.locator('[data-testid^="right-"]').nth(k).click(); } await click("check-button"); }
-  else if (await tid("mic-hint").count()) {
-    seen.add("speak_repeat"); await holdMic(page);
+  else if ((await tid("mic-hint").count()) || (await tid("typed-answer").count())) {
+    seen.add("speak_repeat"); if (await tid("mic-hint").count()) await holdMic(page);
     if (await tid("consent-accept").count()) { await tid("consent-voice").first().click(); await click("consent-accept"); await page.waitForTimeout(400); await holdMic(page); await page.waitForTimeout(600); }
     const target = (await tid("exercise-prompt").first().textContent()) ?? "";
     await visible("typed-answer", 5000); await tid("typed-answer").fill(target); await page.getByRole("button", { name: /Prüfen/ }).first().click();

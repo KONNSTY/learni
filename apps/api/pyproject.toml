@@ -34,3 +34,6 @@ ignore = ["S101", "S311", "E501"]
 
 [tool.setuptools.packages.find]
 include = ["learni_api*"]
+
+[tool.setuptools.package-data]
+learni_api = ["remote_config.json"]

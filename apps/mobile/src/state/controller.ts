@@ -4,11 +4,12 @@ import { createAds, type Ads } from "../ads";
 import { getToken, hasSession, signIn as authSignIn, signOut as authSignOut, wipeLocalSession, type Provider } from "../auth/session";
 import { env } from "../config/env";
 import { bus } from "../events/bus";
+import type { PaywallTrigger } from "../events/types";
 import { detectLocale } from "../i18n";
 import { createLocalApi } from "../mock/localApi";
 import { shouldShowPaywall } from "../paywall/triggers";
 import { createPurchases, type Purchases } from "../purchases";
-import { isSpeaking, setSpeaking } from "./speaking";
+import { isSpeaking, onSpeakingEnd, setSpeaking } from "./speaking";
 import { appStore, initialData } from "./store";
 import { asyncKV, clearPrefs, loadPrefs, savePrefs, type Prefs } from "./prefs";
 
@@ -29,15 +30,19 @@ function fail(e: unknown): never {
 async function guard<T>(p: Promise<T>): Promise<T> { try { const r = await p; if (appStore.get().offline) appStore.set({ offline: false }); return r; } catch (e) { return fail(e); } }
 
 let wired = false;
+let pendingPaywall: PaywallTrigger | null = null;
 function wireBus() {
   if (wired) return; wired = true;
-  bus.on("paywall.requested", (e) => {
+  const tryShow = (trigger: PaywallTrigger): boolean => {
     const tier = appStore.get().user?.membership.tier ?? "free";
-    if (shouldShowPaywall(e.payload.trigger, tier, paywallHistory, Date.now(), isSpeaking())) {
-      paywallHistory = { ...paywallHistory, [e.payload.trigger]: Date.now() }; void savePrefs({ paywallHistory });
-      appStore.set({ paywall: e.payload.trigger });
-    }
-  });
+    if (isSpeaking()) { pendingPaywall = trigger; return false; } // spaeter zeigen, nicht verwerfen
+    if (!shouldShowPaywall(trigger, tier, paywallHistory, Date.now())) return false;
+    paywallHistory = { ...paywallHistory, [trigger]: Date.now() }; void savePrefs({ paywallHistory });
+    appStore.set({ paywall: trigger });
+    return true;
+  };
+  onSpeakingEnd(() => { const p = pendingPaywall; pendingPaywall = null; if (p) tryShow(p); });
+  bus.on("paywall.requested", (e) => { tryShow(e.payload.trigger); });
   bus.on("budget.limited", () => appStore.set({ budgetLimited: true }));
   bus.on("membership.changed", () => { void refreshState(); });
 }

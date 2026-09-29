@@ -50,13 +50,14 @@ const log = (m) => console.log("•", m);
     if (await h.tid("hearts-speak").count()) { sheet = true; break; }
     if (await h.tid("lesson-done").count()) { await h.click("lesson-continue"); for (let k = 0; k < 3 && (await h.tid("celebration-title").count()); k++) await h.click("celebration-continue"); await page.waitForTimeout(300); continue; }
     if (await h.tid("flip-button").count()) { await h.click("flip-button"); await h.click("rate-again"); }
-    else if (await h.tid("mic-hint").count()) {
-      // Sprechuebung: Mikrofon ohne Einwilligung/Berechtigung -> Tipp-Alternative
-      await holdMic(page);
-      await page.waitForTimeout(400);
-      if (await h.tid("consent-accept").count()) { await h.tid("consent-voice").first().click(); await h.click("consent-accept"); await page.waitForTimeout(300); await holdMic(page); await page.waitForTimeout(500); }
+    else if ((await h.tid("mic-hint").count()) || (await h.tid("typed-answer").count())) {
+      // Sprechuebung: ohne Einwilligung fuehrt das Mikrofon zur Consent-Abfrage, ohne Mikrofon (Headless) bleibt die Tipp-Alternative
+      if (await h.tid("mic-hint").count()) {
+        await holdMic(page);
+        if (await h.tid("consent-accept").count()) { await h.tid("consent-voice").first().click(); await h.click("consent-accept"); await page.waitForTimeout(300); await holdMic(page); await page.waitForTimeout(500); }
+      }
       const target = (await h.tid("exercise-prompt").first().textContent()) ?? "";
-      if (await h.tid("typed-answer").count()) { await h.tid("typed-answer").fill(target); await page.getByRole("button", { name: /Prüfen/ }).first().click(); log("speak exercise answered via typed fallback (no heart cost)"); }
+      await h.visible("typed-answer", 5000); await h.tid("typed-answer").fill(target); await page.getByRole("button", { name: /Prüfen/ }).first().click(); log("speak exercise answered via typed fallback (no heart cost)");
     }
     else if (await page.locator('[data-testid^="token-"]').count()) { const n = await page.locator('[data-testid^="token-"]').count(); for (let k = 0; k < n; k++) await page.locator('[data-testid^="token-"]').first().click(); await h.click("check-button"); }
     else if (await page.locator('[data-testid^="left-"]').count()) { const n = await page.locator('[data-testid^="left-"]').count(); for (let k = 0; k < n; k++) { await page.locator('[data-testid^="left-"]').nth(k).click(); await page.locator('[data-testid^="right-"]').nth(k).click(); } await h.click("check-button"); }
