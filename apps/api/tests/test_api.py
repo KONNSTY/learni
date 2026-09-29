@@ -297,3 +297,51 @@ def test_geo_tiering_from_device_region_and_store_country(settings, store):
     # niedrigeres Tier => kleineres Cent-Budget
     svc = c.app.state.svc
     assert svc.budget.status(uid, "free", "tier3").cost_cents_limit < svc.budget.status(uid2, "free", "tier1").cost_cents_limit
+
+
+def test_explain_uses_cache_and_never_stores_mock(client, user, store):
+    _, h = user
+    r = client.post("/v1/explain", json={"language": "es", "item_id": "es.hello"}, headers=h).json()
+    assert r["test_mode"] is True and r["text"] and r["cached"] is False
+    assert store.select("explanations") == []  # Mock-Antworten werden nie als Lerninhalt gespeichert
+    store.upsert("explanations", {"language": "es", "ui_language": "de", "item_id": "es.hello", "text": "Begruessung.", "model": "x"})
+    r2 = client.post("/v1/explain", json={"language": "es", "item_id": "es.hello"}, headers=h).json()
+    assert r2 == {"text": "Begruessung.", "cached": True, "test_mode": False}
+    assert client.post("/v1/explain", json={"language": "es", "item_id": "es.nope"}, headers=h).status_code == 404
+    assert client.post("/v1/explain", json={"language": "es", "item_id": "../x"}, headers=h).status_code == 422
+
+
+def test_explain_respects_budget(client, user):
+    uid, h = user
+    client.post("/v1/auth/sync", json={}, headers=h)
+    client.app.state.svc.budget.charge(uid, 1, 99)
+    r = client.post("/v1/explain", json={"language": "es", "item_id": "es.hello"}, headers=h).json()
+    assert r["text"] == "" and r["events"][0]["type"] == "budget.limited"
+
+
+def test_streak_at_risk_trigger_only_late_and_only_for_free_with_long_streak(client, user, store):
+    from datetime import UTC, datetime, timedelta
+    uid, h = user
+    client.post("/v1/auth/sync", json={}, headers=h)
+    svc = client.app.state.svc
+    now = datetime(2026, 9, 29, 19, 0, tzinfo=UTC)
+    row = svc.learner(uid, "es", now)
+    row.update(streak_days=5, streak_last_active=(now - timedelta(days=1)).date().isoformat(), daily_xp_day=now.date().isoformat(), daily_xp=0)
+    store.upsert("learner_state", row)
+    def risk(t):
+        return ("paywall.requested", "streak_at_risk") in [(e["type"], e["payload"].get("trigger")) for e in svc.next_exercise(uid, "es", t)["events"]]
+
+    def update(**kw):
+        r = svc.learner(uid, "es", now)
+        r.update(kw)
+        store.upsert("learner_state", r)
+
+    assert risk(now)
+    assert not risk(now.replace(hour=9))  # morgens noch nicht
+    update(streak_days=2)
+    assert not risk(now)  # Serie zu kurz
+    update(streak_days=5, daily_xp=20)
+    assert not risk(now)  # heute schon aktiv
+    update(daily_xp=0)
+    svc.set_membership(uid, "pro")
+    assert not risk(now)  # Pro

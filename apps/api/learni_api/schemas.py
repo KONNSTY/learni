@@ -93,3 +93,8 @@ class AnalyticsEvent(Strict):
 
 class DevMembership(Strict):
     tier: Literal["free", "pro"]
+
+
+class ExplainRequest(Strict):
+    language: Lang
+    item_id: Annotated[str, StringConstraints(pattern=r"^[a-z]{2,3}\.[a-z0-9_.]{1,60}$")]

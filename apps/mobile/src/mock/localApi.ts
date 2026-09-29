@@ -181,6 +181,12 @@ export function createLocalApi(opts: { kv?: KV; now?: () => Date } = {}): Learni
       }
       return out;
     },
+    async explain(_language: string, itemId: string) {
+      const st = await load(); const it = ITEMS.find((i) => i.id === itemId);
+      if (!it) throw new ApiError(404, "unknown item");
+      const ui = st.user.profile.ui_language;
+      return { text: ui === "de" ? `„${it.lemma}“ bedeutet „${it.de}“.` : `“${it.lemma}” means “${it.en}”.`, cached: false, test_mode: true };
+    },
     async tutorProfile(language) { const st = await load(); return { language, goals: [st.user.learning.goal], interests: [], typical_mistakes: st.tutor.typical_mistakes, pace: st.tutor.pace }; },
     async deleteTutorProfile() { const st = await load(); st.tutor = { goals: [], typical_mistakes: [], pace: "normal" }; await save(); },
     async exportData() { const st = await load(); return { profile: st.user.profile, membership: st.user.membership, learning: st.user.learning, tutor_profile: st.tutor }; },

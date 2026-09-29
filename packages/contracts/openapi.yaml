@@ -80,6 +80,11 @@ paths:
     post:
       summary: Freiwillige Rewarded Ad wurde angesehen -> 1 Herz
       responses: { "200": { description: ok, content: { application/json: { schema: { $ref: "#/components/schemas/EventsResponse" } } } } }
+  /v1/explain:
+    post:
+      summary: Kurzerklaerung eines Items in der UI-Sprache (gecacht)
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/ExplainRequest" } } } }
+      responses: { "200": { description: ok, content: { application/json: { schema: { $ref: "#/components/schemas/ExplainResponse" } } } } }
   /v1/tutor-profile:
     get:
       summary: KI-Nutzerprofil einsehen
@@ -300,6 +305,20 @@ components:
         events: { type: array, items: { $ref: "schemas/events.schema.json" } }
         latency_ms: { type: object, additionalProperties: { type: number } }
         test_mode: { type: boolean }
+    ExplainRequest:
+      type: object
+      required: [language, item_id]
+      properties:
+        language: { type: string }
+        item_id: { type: string }
+    ExplainResponse:
+      type: object
+      required: [text, cached]
+      properties:
+        text: { type: string }
+        cached: { type: boolean }
+        test_mode: { type: boolean }
+        events: { type: array, items: { $ref: "schemas/events.schema.json" } }
     TutorProfile:
       type: object
       properties:

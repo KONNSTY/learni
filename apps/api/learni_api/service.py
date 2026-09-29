@@ -180,11 +180,21 @@ class Service:
             events.append(ev("paywall.requested", {"trigger": "pro_feature"}, now))
         if hearts_blocked:
             events.append(ev("hearts.empty", {"paywall_trigger": "hearts_empty"}, now))
+        events += self._streak_risk_events(row, tier, now)
         row["seq"] = int(row["seq"]) + 1
         row["recent_items"] = ([ex["item_id"], *row["recent_items"]])[:6]
         self.store.upsert("learner_state", row)
         self._issue(user_id, ex)
         return {"exercise": X.public_view(ex), "events": events, "test_mode": ex.get("pack_status") == "draft"}
+
+    def _streak_risk_events(self, row: dict[str, Any], tier: str, now: datetime) -> list[dict[str, Any]]:
+        """Trigger `streak_at_risk`: lange Serie, gestern aktiv, heute noch nichts, spaet am Tag, Free ohne Freeze."""
+        cfg = self.cfg.get("streak", default={}) or {}
+        st = S.StreakState(int(row["streak_days"]), date.fromisoformat(row["streak_last_active"]) if row.get("streak_last_active") else None, int(row["streak_freezes"]))
+        if (tier == "free" and st.freezes == 0 and st.days >= int(cfg.get("risk_min_days", 3)) and S.at_risk(st, now.date())
+                and int(row["daily_xp"]) == 0 and now.hour >= int(cfg.get("risk_after_hour_utc", 17))):
+            return [ev("streak.updated", {"days": st.days, "freeze_used": False, "at_risk": True}, now), ev("paywall.requested", {"trigger": "streak_at_risk"}, now)]
+        return []
 
     def _issue(self, user_id: str, ex: dict[str, Any]) -> None:
         self.store.upsert("issued_exercises", {"user_id": user_id, "exercise_id": ex["id"], "language": ex["language"], "type": ex["type"],

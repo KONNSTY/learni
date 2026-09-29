@@ -83,6 +83,8 @@ export const de = {
   "exercise.roleplay.type": "Antwort tippen",
   "exercise.roleplay.send": "Senden",
   "exercise.hint": "Tipp",
+  "exercise.explain": "Erklärung",
+  "exercise.explain.unavailable": "Erklärung gerade nicht verfügbar.",
   "feedback.correct": "Richtig!",
   "feedback.wrong": "Nicht ganz.",
   "feedback.retry_speaking": "Fast! Sprich es noch einmal – ohne Herzverlust.",

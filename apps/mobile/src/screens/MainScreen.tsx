@@ -190,6 +190,11 @@ export function MainScreen({ navigation }: Props) {
             onSubmit={(a, m) => void submit(a, m)} onPlay={(text, slow) => say(text, !slow ? exercise.prompt.audio_url ?? null : null, !!slow)} mic={mic}
             onRoleplaySend={async (text) => { const r = await api.voiceTurn({ language, text, scenario_id: "cafe" }); bus.emitAll(r.events); const sp = r.events.find((e) => e.type === "avatar.speak"); return sp && sp.type === "avatar.speak" ? sp.payload.text : null; }} />
         ) : <Button label={t("common.retry")} onPress={() => void load()} />}
+        {result && exercise && exercise.item_id !== "llm.turn" ? (
+          <Chip testID="explain-button" label={t("exercise.explain")} bg="surfaceAlt" fg="primary" onPress={() => {
+            api.explain(language, exercise.item_id).then((r) => setSubtitle({ text: r.text || t("exercise.explain.unavailable"), translation: null })).catch(() => setSubtitle({ text: t("exercise.explain.unavailable"), translation: null }));
+          }} />
+        ) : null}
         {result && <Button testID="next-button" label={t("common.continue")} onPress={() => void next()} />}
       </ScrollView>
       {/* Steuerung: Wiederholen, Mikrofon, Langsamer */}

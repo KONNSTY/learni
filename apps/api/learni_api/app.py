@@ -21,7 +21,9 @@ from .auth import AuthUser, current_user
 from .config import RemoteConfig, Settings
 from .content import ContentLibrary
 from .events import ev
+from .guardrails import GuardrailError, validate_llm_turn, wrap_user_text
 from .prompts import PromptLibrary
+from .providers.base import ProviderError
 from .providers.factory import Providers, build_providers
 from .security import RateLimiter, RedisRateLimiter, SecurityHeadersMiddleware, enforce, safe_compare
 from .service import DomainError, Service
@@ -186,6 +188,36 @@ def create_app(settings: Settings | None = None, store: Store | None = None, pro
             ex_id = "ex_llm_" + base64.urlsafe_b64encode(os.urandom(6)).decode().rstrip("=")
             out["tutor_turn"] = svc.issue_tutor_exercise(user.user_id, body.language, row["level"], res.tutor_turn, ex_id)
         return out
+
+    @app.post("/v1/explain")
+    async def explain(body: M.ExplainRequest, request: Request, user: AuthUser = User) -> dict[str, Any]:
+        """Kurze Erklaerung eines Items in der UI-Sprache. Cache zuerst; LLM nur bei Cache-Miss und nur innerhalb des Budgets."""
+        enforce(request, user.user_id, "exercise")
+        prof = svc.ensure_user(user.user_id)
+        found = lib.find_item(body.language, body.item_id)
+        if not found:
+            raise HTTPException(404, "unknown item")
+        ui = prof["ui_language"]
+        cached = store.get("explanations", language=body.language, ui_language=ui, item_id=body.item_id)
+        if cached:
+            return {"text": cached["text"], "cached": True, "test_mode": False}
+        limited = svc.budget_events(user.user_id)
+        if limited:
+            return {"text": "", "cached": False, "test_mode": False, "events": limited}
+        _, item = found
+        row = svc.learner(user.user_id, body.language)
+        vocab = sorted(lib.vocabulary_whitelist(body.language, row["level"]))
+        system = pipeline.prompts.system_prompt(language=body.language, level=row["level"], ui_language=ui, tutor_profile=None, scenario_id=None, vocabulary=vocab)
+        ask = f"Erkläre das Wort oder die Wendung „{item['lemma']}“ ({item['translations'].get(ui) or item['translations']['en']}) in höchstens zwei kurzen Sätzen in der UI-Sprache {ui}."
+        try:
+            res = await providers.llm.complete(system, [{"role": "user", "content": wrap_user_text(ask)}], max_tokens=int(cfg.get("llm", "max_output_tokens", default=220)))
+            text = validate_llm_turn(res.text)["say"]
+        except (ProviderError, GuardrailError):
+            raise HTTPException(503, "explanation unavailable") from None
+        svc.budget.charge(user.user_id, 0, res.cost_cents)
+        if not res.mock:  # Mock-Antworten werden nie als Lerninhalt gespeichert
+            store.upsert("explanations", {"language": body.language, "ui_language": ui, "item_id": body.item_id, "text": text[:600], "model": res.model, "created_at": datetime.now(UTC).isoformat()})
+        return {"text": text, "cached": False, "test_mode": res.mock}
 
     @app.get("/v1/tutor-profile")
     def get_tutor_profile(language: str, request: Request, user: AuthUser = User) -> dict[str, Any]:

@@ -20,8 +20,10 @@ KEYS: dict[str, tuple[str, ...]] = {
     "usage_daily": ("user_id", "day"),
     "issued_exercises": ("user_id", "exercise_id"),
     "analytics_events": ("id",),
+    "explanations": ("language", "ui_language", "item_id"),
 }
-USER_TABLES = tuple(t for t in KEYS if t != "analytics_events") + ("analytics_events",)
+SHARED_TABLES = frozenset({"explanations"})  # Inhalte ohne Personenbezug (kein user_id)
+USER_TABLES = tuple(t for t in KEYS if t not in SHARED_TABLES and t != "analytics_events") + ("analytics_events",)
 
 
 class Store(Protocol):

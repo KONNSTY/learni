@@ -38,6 +38,7 @@ export interface LearniApi {
   completeLesson(input: { language: string; xp: number; mistakes: number; minutes: number }): Promise<LearniEvent[]>;
   rewardedAd(language: string): Promise<LearniEvent[]>;
   voiceTurn(input: VoiceTurnInput): Promise<VoiceTurnResult>;
+  explain(language: string, itemId: string): Promise<{ text: string; cached: boolean; test_mode?: boolean }>;
   tutorProfile(language: string): Promise<TutorProfile>;
   deleteTutorProfile(language: string): Promise<void>;
   exportData(): Promise<Record<string, unknown>>;

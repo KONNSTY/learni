@@ -109,4 +109,12 @@ describe("local mock api (Expo Go without backend)", () => {
     await api.answer(exercise.id, { language: "es", answer: "x" });
     await expect(api.answer(exercise.id, { language: "es", answer: "x" })).rejects.toMatchObject({ status: 404 });
   });
+
+  it("explain returns a UI-language explanation and rejects unknown items", async () => {
+    const api = createLocalApi();
+    expect((await api.explain("es", "es.hello")).text).toContain("hallo");
+    await api.patchProfile({ ui_language: "en" });
+    expect((await api.explain("es", "es.hello")).text).toContain("hello");
+    await expect(api.explain("es", "es.nope")).rejects.toMatchObject({ status: 404 });
+  });
 });

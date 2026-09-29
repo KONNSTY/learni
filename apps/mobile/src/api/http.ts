@@ -42,6 +42,7 @@ export function createHttpApi(baseUrl: string, getToken: TokenProvider, fetchImp
     completeLesson: async (i) => (await call<{ events: never[] }>("POST", "/v1/lessons/complete", i)).events,
     rewardedAd: async (l) => (await call<{ events: never[] }>("POST", "/v1/ads/rewarded" + q(l))).events,
     voiceTurn: (i) => call("POST", "/v1/voice/turn", i),
+    explain: (language, item_id) => call("POST", "/v1/explain", { language, item_id }),
     tutorProfile: (l) => call("GET", "/v1/tutor-profile" + q(l)),
     deleteTutorProfile: (l) => call("DELETE", "/v1/tutor-profile" + q(l)),
     exportData: () => call("GET", "/v1/export"),

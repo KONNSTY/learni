@@ -524,6 +524,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/explain": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Kurzerklaerung eines Items in der UI-Sprache (gecacht) */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ExplainRequest"];
+                };
+            };
+            responses: {
+                /** @description ok */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ExplainResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/tutor-profile": {
         parameters: {
             query?: never;
@@ -964,6 +1004,16 @@ export interface components {
                 [key: string]: number;
             };
             test_mode?: boolean;
+        };
+        ExplainRequest: {
+            language: string;
+            item_id: string;
+        };
+        ExplainResponse: {
+            text: string;
+            cached: boolean;
+            test_mode?: boolean;
+            events?: components["schemas"]["events.schema"][];
         };
         TutorProfile: {
             language?: string;

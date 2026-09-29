@@ -25,3 +25,13 @@ Format: `[ANNAHME]` = eigene Entscheidung ohne Vorgabe, `[UNVERIFIZIERT]` = nich
 - **[ANNAHME] Streaming:** Der Voice-Pfad ist als REST (`/v1/voice/turn`) plus SSE-fähiger Pipeline umgesetzt; ein Audio-WebSocket ist als Erweiterung vorbereitet. Audio wird nur im Speicher verarbeitet.
 - **[ANNAHME] Open-Source-TTS:** Adapter für Piper (CLI) als lokaler Dev-Fallback, Auswahlbegründung in `docs/TTS_OPEN_SOURCE.md` (Sprachabdeckung `[UNVERIFIZIERT]`, muss vor Launch gegen aktuelle Modellliste geprüft werden).
 - **[ANNAHME] Modellnamen:** Gemma 4 / Qwen 3.5 stammen aus dem Prompt. Konkrete Gateway-Modell-IDs sind Konfiguration (`LLM_MODEL_*`), nicht im Code fest verdrahtet `[UNVERIFIZIERT]`.
+
+## Weitere Entscheidungen (Umsetzung)
+- **[ANNAHME] Figma-Umfang:** 35 Screens auf Seite „Screens“, 5 Komponenten-Sets, Prototyp per Smart-Animate-Navigation (Loading → Login → Sprache → Onboarding → Plan → Hauptscreen ↔ Aufnahme → Profil → Konto löschen; Paywalls, Lektionsende → Streak → Level-Up). Animationen selbst (Konfetti, Herzbruch …) sind als Tabelle „Prototype & Sound“ spezifiziert und im Code umgesetzt, nicht als Figma-Bewegung.
+- **[ANNAHME] Mock-Modus im Client:** In Debug-Builds ohne `EXPO_PUBLIC_API_URL` läuft die App komplett lokal (`mock/localApi.ts`, gleiche Contract-Formate, per Ajv gegen die JSON-Schemas getestet). Release-Builds ignorieren den Mock (`resolveApiMode`).
+- **[ANNAHME] Aufnahmeformat:** iOS 16-kHz-Linear-PCM-WAV, Android AAC/M4A (`audio_mime`); der Server akzeptiert beides.
+- **[ANNAHME] Geo-Tiering:** Land aus Geräte-Region (Sync) bzw. Store-Land (RevenueCat-Webhook, gewinnt und sperrt); Tabelle `geo_tiers` in `remote_config.json`.
+- **[ANNAHME] Tageszeit für `streak_at_risk`:** UTC (17 Uhr), bis die Nutzer-Zeitzone vorliegt.
+- **[ANNAHME] Rate-Limits:** In-Memory-Token-Bucket, bei `REDIS_URL` verteiltes Fixed-Window-Limit mit lokalem Fallback bei Redis-Fehlern (fail-open, damit ein Redis-Ausfall die API nicht stoppt; Kosten schützt zusätzlich das Cent-Budget).
+- **[ANNAHME] Grenzen der Vorschau:** Web-Export dient nur E2E-Tests/Vorschau (SecureStore → localStorage, Ads/Käufe/Rive als Mock); Zielplattform bleibt iOS/Android.
+- **[UNVERIFIZIERT] Nicht auf echter Hardware/Anbietern geprüft:** Rive-Rendering, expo-audio-Aufnahme, Haptik, Stummschalter-Verhalten, AdMob/UMP, RevenueCat, Apple/Google-Login, alle realen Provider-Aufrufe, Redis.

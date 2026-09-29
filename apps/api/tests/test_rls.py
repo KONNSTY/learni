@@ -45,7 +45,7 @@ def db():
     _run(str(PG_BIN / "pg_ctl"), "-D", str(data), "-o", f"-k {sock} -c listen_addresses='' -c fsync=off", "-w", "-l", str(base / "log"), "start")
     conn = psycopg.connect(host=str(sock), user="postgres", dbname="postgres", autocommit=True)
     conn.execute(HARNESS)
-    for f in ("migrations/0001_schema.sql", "migrations/0002_rls.sql", "seed.sql"):
+    for f in ("migrations/0001_schema.sql", "migrations/0002_rls.sql", "migrations/0003_explanations.sql", "seed.sql"):
         conn.execute((MIG / f).read_text())
     yield conn
     conn.close()

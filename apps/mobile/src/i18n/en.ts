@@ -83,6 +83,8 @@ export const en = {
   "exercise.roleplay.type": "Type your answer",
   "exercise.roleplay.send": "Send",
   "exercise.hint": "Hint",
+  "exercise.explain": "Explain",
+  "exercise.explain.unavailable": "Explanation not available right now.",
   "feedback.correct": "Correct!",
   "feedback.wrong": "Not quite.",
   "feedback.retry_speaking": "Almost! Say it once more – no heart lost.",

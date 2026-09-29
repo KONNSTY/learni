@@ -106,5 +106,10 @@
     ],
     "default": "tier2",
     "_comment": "[ANNAHME] Kosten-/Preis-Tiering nach Land; vor Launch mit Preisstrategie abstimmen"
+  },
+  "streak": {
+    "risk_after_hour_utc": 17,
+    "risk_min_days": 3,
+    "_comment": "[ANNAHME] Trigger streak_at_risk: Serie >= 3 Tage, gestern aktiv, heute noch kein XP, nach 17 Uhr UTC, Free ohne Freeze"
   }
 }
