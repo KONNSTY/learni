@@ -9,6 +9,8 @@ const EXE = process.env.CHROMIUM ?? "/opt/pw-browsers/chromium-1194/chrome-linux
 mkdirSync(OUT, { recursive: true });
 
 const errors = [];
+// Push-to-talk = Halten. Ein kurzer Klick zeigt nur den Hinweis, gehalten startet die Aufnahme.
+async function holdMic(page, ms = 350) { const box = await page.getByTestId("mic-button").first().boundingBox(); await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2); await page.mouse.down(); await page.waitForTimeout(ms); await page.mouse.up(); await page.waitForTimeout(300); }
 const browser = await chromium.launch({ executablePath: EXE, args: ["--no-sandbox"] });
 const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, locale: process.env.LOCALE ?? "de-DE", colorScheme: process.env.SCHEME ?? "light", reducedMotion: process.env.REDUCE ? "reduce" : "no-preference" });
 const page = await ctx.newPage();
@@ -41,7 +43,12 @@ for (let i = 0; i < 8; i++) {
   else if (await tid("play-button").count()) { seen.add("listen_pick"); await tid("option-").first().click().catch(() => {}); await page.locator('[role="button"][data-testid^="option-"]').first().click(); await click("check-button"); }
   else if (await page.locator('[data-testid^="token-"]').count()) { seen.add("word_order"); const n = await page.locator('[data-testid^="token-"]').count(); for (let k = 0; k < n; k++) await page.locator('[data-testid^="token-"]').first().click(); await click("check-button"); }
   else if (await page.locator('[data-testid^="left-"]').count()) { seen.add("matching"); const n = await page.locator('[data-testid^="left-"]').count(); for (let k = 0; k < n; k++) { await page.locator('[data-testid^="left-"]').nth(k).click(); await page.locator('[data-testid^="right-"]').nth(k).click(); } await click("check-button"); }
-  else if (await tid("mic-hint").count()) { seen.add("speak_repeat"); await page.getByRole("button", { name: /Mikrofon|Microphone/ }).first().click(); await page.waitForTimeout(150); }
+  else if (await tid("mic-hint").count()) {
+    seen.add("speak_repeat"); await holdMic(page);
+    if (await tid("consent-accept").count()) { await tid("consent-voice").first().click(); await click("consent-accept"); await page.waitForTimeout(400); await holdMic(page); await page.waitForTimeout(600); }
+    const target = (await tid("exercise-prompt").first().textContent()) ?? "";
+    await visible("typed-answer", 5000); await tid("typed-answer").fill(target); await page.getByRole("button", { name: /Prüfen/ }).first().click();
+  }
   else if (await page.locator('[data-testid^="option-"]').count()) { seen.add("options"); await page.locator('[data-testid^="option-"]').first().click(); await click("check-button"); }
   else throw new Error("unknown exercise state at step " + i);
   if (i === 2) await shot("08-exercise");
@@ -51,6 +58,11 @@ for (let i = 0; i < 8; i++) {
 }
 step("exercises seen: " + [...seen].join(", "));
 
+// Lektionsende, Celebrations
+await visible("lesson-done", 15000); await shot("09b-lesson-end"); step("lesson finished");
+await click("lesson-continue");
+for (let k = 0; k < 3 && (await tid("celebration-title").count()); k++) { if (k === 0) await shot("09c-celebration"); await click("celebration-continue"); step("celebration " + (k + 1)); }
+await visible("profile-button", 10000);
 // Profil-Einstellungen
 await click("profile-button"); await visible("setting-sfx"); await shot("10-profile");
 await click("setting-haptics"); step("toggled haptics");

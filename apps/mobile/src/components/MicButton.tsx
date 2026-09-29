@@ -7,9 +7,10 @@ import { useI18n } from "../i18n";
 import { useTheme } from "../theme";
 import { Text } from "./Text";
 
-interface Props { recording: boolean; level: number; onStart: () => Promise<void> | void; onStop: () => Promise<void> | void; disabled?: boolean }
+interface Props { recording: boolean; level: number; onStart: () => Promise<void> | void; onStop: () => Promise<void> | void; onTap?: () => void; disabled?: boolean }
 /** Push-to-talk (Halten). Figma: MicButton Idle/Listening/Disabled. Pegel skaliert den Ring (nicht bei Reduce Motion). */
-export function MicButton({ recording, level, onStart, onStop, disabled }: Props) {
+export function MicButton({ recording, level, onStart, onStop, onTap, disabled }: Props) {
+  const started = React.useRef(false);
   const th = useTheme();
   const fb = useFeedback();
   const { t } = useI18n();
@@ -17,7 +18,7 @@ export function MicButton({ recording, level, onStart, onStop, disabled }: Props
   const bg = disabled ? th.colors.border : recording ? th.colors.error : th.colors.primary;
   return (
     <Pressable testID="mic-button" accessibilityRole="button" accessibilityLabel={t("main.mic")} accessibilityHint={t("main.tapToTalk")} accessibilityState={{ disabled: !!disabled, busy: recording }}
-      disabled={disabled} onPressIn={() => { fb.play(MIC_ON); void onStart(); }} onPressOut={() => { if (recording) { fb.play(MIC_OFF); void onStop(); } }}>
+      disabled={disabled} onPressIn={() => { started.current = true; fb.play(MIC_ON); void onStart(); }} onPress={() => { if (!started.current) onTap?.(); }} onPressOut={() => { started.current = false; if (recording) { fb.play(MIC_OFF); void onStop(); } }}>
       <Animated.View style={[{ width: 88, height: 88, borderRadius: 44, backgroundColor: bg, alignItems: "center", justifyContent: "center" }, ring]}>
         <Text weight="bold" color="primaryText">{recording ? "●" : "MIC"}</Text>
       </Animated.View>

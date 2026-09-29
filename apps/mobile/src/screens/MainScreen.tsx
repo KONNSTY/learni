@@ -51,6 +51,7 @@ export function MainScreen({ navigation }: Props) {
   const [loading, setLoading] = useState(true);
   const [thinking, setThinking] = useState(false);
   const [showHearts, setShowHearts] = useState(false);
+  const [hint, setHint] = useState<string | null>(null);
   const shownAt = useRef(Date.now());
   const lastSpoken = useRef<{ text: string; url: string | null }>({ text: "", url: null });
   const pronRef = useRef<{ score: number; words: { word: string; score: number | null }[] } | null>(null);
@@ -194,9 +195,10 @@ export function MainScreen({ navigation }: Props) {
       <View style={{ paddingHorizontal: th.space.lg, paddingBottom: th.space.lg, gap: th.space.sm, backgroundColor: th.colors.bg }}>
         <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
           <Chip testID="repeat-button" label={t("main.repeat")} onPress={() => say(lastSpoken.current.text, lastSpoken.current.url)} />
-          <MicButton recording={rec.recording} level={rec.level} onStart={mic.start} onStop={mic.stop} disabled={thinking} />
+          <MicButton recording={rec.recording} level={rec.level} onStart={mic.start} onStop={mic.stop} disabled={thinking} onTap={() => { setHint(t("main.tapToTalk")); setTimeout(() => setHint(null), 2200); }} />
           <Chip testID="slower-button" label={t("main.slower")} onPress={() => say(lastSpoken.current.text, null, true)} />
         </View>
+        {hint ? <Text testID="mic-tap-hint" variant="caption" color="textMuted" center accessibilityLiveRegion="polite">{hint}</Text> : null}
         {/* ganz unten: Herzen, Tagesziel, Streak */}
         {l && <StatBar hearts={l.hearts} unlimited={l.unlimited_hearts} xp={l.daily_xp} xpTarget={l.daily_xp_target} streak={l.streak_days} />}
         <Text variant="caption" color="textMuted" center>{t("ai.notice")}</Text>
