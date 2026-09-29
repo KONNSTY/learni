@@ -105,6 +105,7 @@ class TurnInput:
     regional_tier: str = "tier1"
     audio: bytes | None = None
     audio_seconds: float = 0.0
+    audio_mime: str = "audio/wav"
     text: str | None = None
     slow: bool = False
     reference_text: str | None = None  # bei speak_repeat: Aussprache bewerten
@@ -179,7 +180,7 @@ class VoicePipeline:
         if inp.audio:
             stt = inp.premium_stt and self.p.stt_premium or self.p.stt
             try:
-                res = await self._timed("stt", timings, stt.transcribe(inp.audio, language_hint=inp.language))
+                res = await self._timed("stt", timings, stt.transcribe(inp.audio, language_hint=inp.language, mime=inp.audio_mime))
                 cost += res.cost_cents
                 mock = mock or res.mock
                 transcript = sanitize_user_text(hallucination_filter(res.text, inp.audio_seconds, audio_rms(inp.audio)), 500)
@@ -200,6 +201,9 @@ class VoicePipeline:
                 pron, mock = {"overall": pr.overall, "words": pr.words}, mock or pr.mock
             except (ProviderError, OSError) as e:
                 log.warning("pronunciation failed: %s", type(e).__name__)
+
+        if inp.reference_text:  # Sprechuebung: nur Erkennung + Aussprache, kein Tutor-Turn (kein LLM-/TTS-Aufwand)
+            return TurnResult(transcript, events, self._finish(timings, t_start), None, pron, cost, seconds, mock)
 
         # 3) Guardrails auf Nutzertext
         safe_reply = self._input_guard(transcript, inp)

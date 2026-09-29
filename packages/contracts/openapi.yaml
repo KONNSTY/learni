@@ -287,6 +287,7 @@ components:
         language: { type: string, description: "Lernsprache = STT-Sprach-Hint" }
         audio_b64: { type: string, description: "PCM/WAV, nur im Speicher verarbeitet, nie persistiert" }
         audio_seconds: { type: number, maximum: 60 }
+        audio_mime: { enum: [audio/wav, audio/mp4, audio/mpeg, audio/webm, audio/ogg], default: audio/wav }
         text: { type: string, maxLength: 500, description: "Fallback ohne Audio" }
         slow: { type: boolean }
         exercise_id: { type: string }

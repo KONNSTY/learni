@@ -77,6 +77,7 @@ class VoiceTurnRequest(Strict):
     language: Lang
     audio_b64: str | None = Field(default=None, max_length=8_000_000)
     audio_seconds: float = Field(default=0.0, ge=0, le=60)
+    audio_mime: Literal["audio/wav", "audio/mp4", "audio/mpeg", "audio/webm", "audio/ogg"] = "audio/wav"
     text: str | None = Field(default=None, max_length=500)
     slow: bool = False
     exercise_id: str | None = Field(default=None, max_length=80)

@@ -166,6 +166,10 @@ export function createLocalApi(opts: { kv?: KV; now?: () => Date } = {}): Learni
       const st = await load();
       if (input.audio_b64 && !st.user.profile.consents.voice_processing) throw new ApiError(403, "consent_required: voice_processing");
       if (input.scenario_id && st.user.membership.tier === "free") return { transcript: "", events: [ev("paywall.requested", { trigger: "pro_feature" })], latency_ms: {}, test_mode: true };
+      if (input.exercise_id && issued.get(input.exercise_id)?.type === "speak_repeat") {
+        const ref = String(issued.get(input.exercise_id)?.expected ?? "");
+        return { transcript: ref, events: [], latency_ms: { stt: 5, total: 5 }, test_mode: true, pronunciation: { overall: 82, words: ref.split(" ").map((w, i) => ({ word: w, score: 92 - ((i * 13) % 25) })) } };
+      }
       const turn = DIALOG[Math.min(st.dialogIdx, DIALOG.length - 1)]; st.dialogIdx = (st.dialogIdx + 1) % DIALOG.length; await save();
       const dur = Math.max(400, 65 * turn.say.length / (input.slow ? 0.8 : 1));
       const events = [ev("avatar.speak", { text: turn.say, audio_url: null, visemes: textToVisemes(turn.say, dur), emotion: turn.type === "none" ? "happy" : "encouraging", mock: true })];

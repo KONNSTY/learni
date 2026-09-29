@@ -219,7 +219,8 @@ class Service:
         # FSRS + Lernermodell (nur Curriculum-Items)
         if issued["item_id"] != "llm.turn":
             card = Card.from_row(self.store.get("item_states", user_id=user_id, language=language, item_id=issued["item_id"]))
-            new = review(card, rating_from_answer(correct, response_ms), now)
+            flash = {"again": 1, "hard": 2, "good": 3, "easy": 4}.get(str(given).lower()) if ex_type == "flashcard" else None
+            new = review(card, flash or rating_from_answer(correct, response_ms), now)
             self.store.upsert("item_states", {"user_id": user_id, "language": language, "item_id": issued["item_id"], **new.to_row()})
             if not correct:
                 row["mistakes"][issued["item_id"]] = int(row["mistakes"].get(issued["item_id"], 0)) + 1

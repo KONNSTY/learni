@@ -945,6 +945,11 @@ export interface components {
             /** @description PCM/WAV, nur im Speicher verarbeitet, nie persistiert */
             audio_b64?: string;
             audio_seconds?: number;
+            /**
+             * @default audio/wav
+             * @enum {unknown}
+             */
+            audio_mime: "audio/wav" | "audio/mp4" | "audio/mpeg" | "audio/webm" | "audio/ogg";
             /** @description Fallback ohne Audio */
             text?: string;
             slow?: boolean;

@@ -118,6 +118,11 @@ def create_app(settings: Settings | None = None, store: Store | None = None, pro
     def next_exercise(body: M.NextExerciseRequest, request: Request, user: AuthUser = User) -> dict[str, Any]:
         enforce(request, user.user_id, "exercise")
         res = svc.next_exercise(user.user_id, body.language)
+        ex = res["exercise"]
+        if ex["type"] in ("listen_pick", "flashcard", "speak_repeat"):  # vorab gerendertes CDN-Audio (scripts/prerender_audio)
+            rel = tts_cache.find(body.language, ex["content"].get("target_text") or ex["prompt"]["say"], 1.0)
+            if rel:
+                ex["prompt"]["audio_url"] = tts_cache.url_for(rel)
         res["events"] += svc.budget_events(user.user_id) if body.mode == "conversation" else []
         return res
 
@@ -168,7 +173,7 @@ def create_app(settings: Settings | None = None, store: Store | None = None, pro
             if issued and issued["type"] == "speak_repeat" and isinstance(issued.get("expected_answer"), str):
                 reference = issued["expected_answer"]
         inp = TurnInput(user.user_id, body.language, row["level"], prof["ui_language"], tier, svc.membership(user.user_id).get("regional_tier", "tier1"),
-                        audio, body.audio_seconds, body.text, body.slow, reference, body.scenario_id, svc.tutor_profile(user.user_id, body.language),
+                        audio, body.audio_seconds, body.audio_mime, body.text, body.slow, reference, body.scenario_id, svc.tutor_profile(user.user_id, body.language),
                         premium_stt=tier == "pro")
         res = await pipeline.turn(inp)
         svc.budget.charge(user.user_id, res.seconds, res.cost_cents)

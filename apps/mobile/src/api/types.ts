@@ -20,7 +20,7 @@ export interface LearningPlan { language: string; level: Level; weeks_to_next_le
 export interface OnboardingInput { language: string; self_level: "none" | "few_words" | "simple_conversations" | "everyday"; adaptive_answers: { item_id: string; correct: boolean }[]; goal: "travel" | "work" | "family" | "fun"; daily_goal_minutes: 5 | 10 | 15 | 20 }
 export interface NextExercise { exercise: Exercise; events: LearniEvent[]; test_mode?: boolean }
 export interface AnswerInput { language: string; answer: string | string[]; response_ms?: number; pronunciation_score?: number }
-export interface VoiceTurnInput { language: string; audio_b64?: string; audio_seconds?: number; text?: string; slow?: boolean; exercise_id?: string; scenario_id?: string }
+export interface VoiceTurnInput { language: string; audio_b64?: string; audio_seconds?: number; audio_mime?: string; text?: string; slow?: boolean; exercise_id?: string; scenario_id?: string }
 export interface VoiceTurnResult { transcript: string; events: LearniEvent[]; latency_ms: Record<string, number>; test_mode?: boolean; tutor_turn?: Exercise; pronunciation?: { overall: number; words: { word: string; score: number | null }[] } }
 export interface TutorProfile { language: string; goals: string[]; interests: string[]; typical_mistakes: string[]; pace: string }
 export interface RemoteConfig { pricing: { currency: string; monthly: number; yearly: number; trial_days: number }; free: { max_hearts: number; ai_seconds_per_day: number }; pro: { ai_seconds_per_day: number }; feature_flags: Record<string, boolean> }

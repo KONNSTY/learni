@@ -236,3 +236,29 @@ def test_payload_too_large(client, user):
     _, h = user
     r = client.post("/v1/voice/turn", content=b"x" * (7 * 1024 * 1024), headers={**h, "Content-Type": "application/json"})
     assert r.status_code == 413
+
+
+def test_flashcard_self_rating_drives_fsrs_and_never_costs_hearts(client, user, store):
+    uid, h = user
+    ex = client.post("/v1/exercises/next", json={"language": "es"}, headers=h).json()["exercise"]
+    assert ex["type"] == "flashcard"
+    ev = client.post(f"/v1/exercises/{ex['id']}/answer", json={"language": "es", "answer": "again"}, headers=h).json()["events"]
+    assert ev[0]["payload"]["correct"] is False and ev[0]["payload"]["hearts_lost"] == 0
+    card = store.get("item_states", user_id=uid, language="es", item_id=ex["item_id"])
+    assert card["lapses"] == 0 and card["reps"] == 1  # neue Karte + "again": Stabilitaet klein, kein Lapse
+    ex2 = client.post("/v1/exercises/next", json={"language": "es"}, headers=h).json()["exercise"]
+    client.post(f"/v1/exercises/{ex2['id']}/answer", json={"language": "es", "answer": "easy"}, headers=h)
+    good = store.get("item_states", user_id=uid, language="es", item_id=ex2["item_id"])
+    assert good["stability"] > card["stability"]
+
+
+def test_exercise_gets_prerendered_audio_url_when_cached(client, user):
+    import asyncio
+    _, h = user
+    ex = client.post("/v1/exercises/next", json={"language": "es"}, headers=h).json()["exercise"]
+    assert ex["type"] == "flashcard" and ex["prompt"]["audio_url"] is None
+    cache = client.app.state.pipeline.tts_cache
+    asyncio.run(cache.get(ex["content"]["target_text"], "es", 1.0))  # wie scripts/prerender_audio
+    fresh = new_user()[1]
+    ex2 = client.post("/v1/exercises/next", json={"language": "es"}, headers=fresh).json()["exercise"]
+    assert ex2["content"]["target_text"] == ex["content"]["target_text"] and ex2["prompt"]["audio_url"].endswith(".wav")
