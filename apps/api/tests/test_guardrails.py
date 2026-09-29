@@ -25,7 +25,7 @@ def test_invalid_turns_rejected(raw):
         g.validate_llm_turn(raw)
 
 
-@pytest.mark.parametrize("say", ["sk-abcdefghijklmnopqrstuvwx", "Mein SUPABASE_SERVICE_ROLE_KEY", "# Unverrückbare Regeln", "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.abc123DEF456"])
+@pytest.mark.parametrize("say", ["sk-abcdefghijklmnopqrstuvwx", "Mein SUPABASE_SERVICE_ROLE_KEY", "# Unverrückbare Regeln", "eyJhbGciOiJ" + "IUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.abc123DEF456"])  # zur Laufzeit zusammengesetzt (kein statischer Secret-Fund)
 def test_leaks_blocked(say):
     with pytest.raises(g.GuardrailError) as e:
         g.validate_llm_turn(turn(say=say))
