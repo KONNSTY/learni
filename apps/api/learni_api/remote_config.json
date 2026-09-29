@@ -1,0 +1,115 @@
+{
+  "version": 1,
+  "pricing": {
+    "currency": "EUR",
+    "monthly": 11.99,
+    "yearly": 69.99,
+    "trial_days": 7,
+    "experiment_variants": {
+      "control": {
+        "monthly": 11.99,
+        "yearly": 69.99
+      }
+    }
+  },
+  "free": {
+    "max_hearts": 5,
+    "heart_regen_minutes": 240,
+    "ai_seconds_per_day": 600,
+    "cost_cents_per_day": 25,
+    "roleplay": false,
+    "ads": true,
+    "streak_freezes": 0
+  },
+  "pro": {
+    "max_hearts": null,
+    "ai_seconds_per_day": 2700,
+    "cost_cents_per_day": 120,
+    "roleplay": true,
+    "ads": false,
+    "streak_freezes": 2
+  },
+  "geo_cost_multiplier": {
+    "tier1": 1.0,
+    "tier2": 0.7,
+    "tier3": 0.4
+  },
+  "global_cost_kill_switch_cents_per_day": 500000,
+  "llm": {
+    "max_input_tokens": 600,
+    "max_output_tokens": 220,
+    "max_turns_per_minute": 12
+  },
+  "voice": {
+    "latency_target_ms": 1600,
+    "latency_alarm_ms": 2000,
+    "max_audio_seconds": 30
+  },
+  "xp": {
+    "per_correct": 10,
+    "lesson_bonus": 15,
+    "daily_target_per_minute": 10
+  },
+  "levels": {
+    "up_mastery_threshold": 0.8,
+    "min_reviewed_items": 12
+  },
+  "feature_flags": {
+    "bot_protection": false,
+    "captcha": false,
+    "require_email_verification": false,
+    "login_rate_limits": false,
+    "show_test_mode_badge": true
+  },
+  "costs": {
+    "llm_cents_per_1k_tokens": 0.03,
+    "groq_usd_per_hour": 0.04,
+    "_comment": "Preise [UNVERIFIZIERT], vor Launch gegen Anbieter-Preislisten pruefen"
+  },
+  "geo_tiers": {
+    "tier1": [
+      "DE",
+      "AT",
+      "CH",
+      "LI",
+      "LU",
+      "NL",
+      "BE",
+      "FR",
+      "IE",
+      "GB",
+      "SE",
+      "NO",
+      "DK",
+      "FI",
+      "IS",
+      "US",
+      "CA",
+      "AU",
+      "NZ",
+      "JP",
+      "SG"
+    ],
+    "tier3": [
+      "IN",
+      "ID",
+      "PH",
+      "PK",
+      "BD",
+      "NG",
+      "EG",
+      "VN",
+      "KE",
+      "GH",
+      "LK",
+      "NP"
+    ],
+    "default": "tier2",
+    "_comment": "[ANNAHME] Kosten-/Preis-Tiering nach Land; vor Launch mit Preisstrategie abstimmen"
+  },
+  "streak": {
+    "risk_after_hour_utc": 17,
+    "risk_min_days": 3,
+    "_comment": "[ANNAHME] Trigger streak_at_risk: Serie >= 3 Tage, gestern aktiv, heute noch kein XP, nach 17 Uhr UTC, Free ohne Freeze"
+  }
+}

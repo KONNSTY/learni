@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://learni.app/contracts/events/1.0.0",
+  "title": "LearniEvent",
+  "description": "Semantische Events Backend -> Frontend. Keine UI-Anweisungen. Aussehen, Klang und Haptik entscheidet das Frontend.",
+  "type": "object",
+  "required": ["event_version", "type", "ts", "payload"],
+  "properties": {
+    "event_version": { "const": "1.0.0" },
+    "type": { "type": "string" },
+    "ts": { "type": "string" },
+    "payload": { "type": "object" }
+  },
+  "oneOf": [
+    { "properties": { "type": { "const": "answer.evaluated" }, "payload": { "type": "object", "required": ["exercise_id", "correct", "decidable", "hearts_lost", "feedback_key"], "additionalProperties": false, "properties": { "exercise_id": { "type": "string" }, "correct": { "type": "boolean" }, "decidable": { "type": "boolean" }, "hearts_lost": { "type": "integer", "minimum": 0 }, "feedback_key": { "type": "string" }, "correct_answer": { "type": ["string", "array", "null"] }, "pronunciation_score": { "type": ["number", "null"] } } } } },
+    { "properties": { "type": { "const": "reward.granted" }, "payload": { "type": "object", "required": ["kind", "amount"], "additionalProperties": false, "properties": { "kind": { "enum": ["xp", "heart", "streak_freeze", "trophy"] }, "amount": { "type": "integer" }, "reason": { "type": "string" }, "trophy_id": { "type": "string" } } } } },
+    { "properties": { "type": { "const": "hearts.changed" }, "payload": { "type": "object", "required": ["hearts", "max_hearts"], "additionalProperties": false, "properties": { "hearts": { "type": "integer", "minimum": 0 }, "max_hearts": { "type": ["integer", "null"] }, "unlimited": { "type": "boolean" } } } } },
+    { "properties": { "type": { "const": "hearts.empty" }, "payload": { "type": "object", "additionalProperties": false, "properties": { "paywall_trigger": { "const": "hearts_empty" } } } } },
+    { "properties": { "type": { "const": "streak.updated" }, "payload": { "type": "object", "required": ["days", "freeze_used"], "additionalProperties": false, "properties": { "days": { "type": "integer" }, "freeze_used": { "type": "boolean" }, "at_risk": { "type": "boolean" } } } } },
+    { "properties": { "type": { "const": "level.up" }, "payload": { "type": "object", "required": ["language", "level"], "additionalProperties": false, "properties": { "language": { "type": "string" }, "level": { "type": "string" }, "skill": { "type": "string" } } } } },
+    { "properties": { "type": { "const": "daily_goal.reached" }, "payload": { "type": "object", "required": ["xp"], "additionalProperties": false, "properties": { "xp": { "type": "integer" } } } } },
+    { "properties": { "type": { "const": "lesson.completed" }, "payload": { "type": "object", "required": ["xp_gained", "mistakes", "minutes"], "additionalProperties": false, "properties": { "xp_gained": { "type": "integer" }, "mistakes": { "type": "integer" }, "minutes": { "type": "number" } } } } },
+    { "properties": { "type": { "const": "avatar.speak" }, "payload": { "type": "object", "required": ["text", "audio_url", "visemes", "emotion"], "additionalProperties": false, "properties": { "text": { "type": "string" }, "audio_url": { "type": ["string", "null"] }, "visemes": { "type": "array", "items": { "type": "object", "required": ["t_ms", "viseme"], "additionalProperties": false, "properties": { "t_ms": { "type": "integer", "minimum": 0 }, "viseme": { "type": "integer", "minimum": 0, "maximum": 21 } } } }, "emotion": { "enum": ["neutral", "happy", "encouraging", "thinking", "surprised", "sad", "celebrate"] }, "mock": { "type": "boolean" } } } } },
+    { "properties": { "type": { "const": "budget.limited" }, "payload": { "type": "object", "required": ["reason", "fallback"], "additionalProperties": false, "properties": { "reason": { "enum": ["ai_minutes", "cost_cents", "fair_use"] }, "fallback": { "const": "cached_content" }, "paywall_trigger": { "type": ["string", "null"] } } } } },
+    { "properties": { "type": { "const": "paywall.requested" }, "payload": { "type": "object", "required": ["trigger"], "additionalProperties": false, "properties": { "trigger": { "enum": ["hearts_empty", "ai_minutes_exhausted", "pro_feature", "streak_at_risk", "onboarding_plan"] } } } } },
+    { "properties": { "type": { "const": "membership.changed" }, "payload": { "type": "object", "required": ["tier", "status"], "additionalProperties": false, "properties": { "tier": { "enum": ["free", "pro"] }, "status": { "type": "string" } } } } }
+  ]
+}

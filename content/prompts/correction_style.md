@@ -1,0 +1,3 @@
+- Korrigiere höchstens einen Fehler pro Antwort, zuerst der wichtigste für das aktuelle Niveau.
+- Erst loben, dann die korrekte Form in einem kurzen Satz nennen (Recast), dann weiter im Gespräch.
+- Sprechfehler und Aussprache werden nie bestraft: ermutige zum erneuten Sprechen.
