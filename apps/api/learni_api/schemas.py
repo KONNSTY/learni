@@ -16,6 +16,7 @@ class AuthSyncRequest(Strict):
     native_language: Lang | None = None
     ui_language: Literal["de", "en"] | None = None
     display_name: Annotated[str, StringConstraints(max_length=60)] | None = None
+    region: Annotated[str, StringConstraints(pattern=r"^[A-Z]{2}$")] | None = None  # ISO-Land des Geraets (Geo-Tiering)
 
 
 class SettingsPatch(Strict):

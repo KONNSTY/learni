@@ -262,3 +262,38 @@ def test_exercise_gets_prerendered_audio_url_when_cached(client, user):
     fresh = new_user()[1]
     ex2 = client.post("/v1/exercises/next", json={"language": "es"}, headers=fresh).json()["exercise"]
     assert ex2["content"]["target_text"] == ex["content"]["target_text"] and ex2["prompt"]["audio_url"].endswith(".wav")
+
+
+def test_revenuecat_webhook_records_kpi_events(settings, store):
+    from fastapi.testclient import TestClient
+
+    from learni_api.app import create_app
+    settings.revenuecat_webhook_secret = "whsec_kpi"
+    c = TestClient(create_app(settings, store))
+    uid, h = new_user()
+    c.post("/v1/auth/sync", json={}, headers=h)
+    hd = {"Authorization": "Bearer whsec_kpi"}
+    c.post("/v1/webhooks/revenuecat", json={"event": {"type": "INITIAL_PURCHASE", "app_user_id": uid, "period_type": "TRIAL", "product_id": "pro_yearly"}}, headers=hd)
+    c.post("/v1/webhooks/revenuecat", json={"event": {"type": "RENEWAL", "app_user_id": uid, "is_trial_conversion": True}}, headers=hd)
+    c.post("/v1/webhooks/revenuecat", json={"event": {"type": "RENEWAL", "app_user_id": uid}}, headers=hd)
+    assert [e["name"] for e in store.select("analytics_events", user_id=uid)] == ["trial_start", "trial_converted"]
+
+
+def test_geo_tiering_from_device_region_and_store_country(settings, store):
+    from fastapi.testclient import TestClient
+
+    from learni_api.app import create_app
+    settings.revenuecat_webhook_secret = "whsec_geo"
+    c = TestClient(create_app(settings, store))
+    uid, h = new_user()
+    assert c.post("/v1/auth/sync", json={"region": "IN"}, headers=h).json()["membership"]["regional_tier"] == "tier3"
+    uid2, h2 = new_user()
+    assert c.post("/v1/auth/sync", json={"region": "BR"}, headers=h2).json()["membership"]["regional_tier"] == "tier2"
+    assert c.post("/v1/auth/sync", json={"region": "de"}, headers=h2).status_code == 422
+    # Store-Land aus dem Webhook gewinnt und ist danach gesperrt
+    c.post("/v1/webhooks/revenuecat", json={"event": {"type": "INITIAL_PURCHASE", "app_user_id": uid2, "country_code": "DE"}}, headers={"Authorization": "Bearer whsec_geo"})
+    c.post("/v1/auth/sync", json={"region": "IN"}, headers=h2)
+    assert c.get("/v1/state", params={"language": "es"}, headers=h2).json()["membership"]["regional_tier"] == "tier1"
+    # niedrigeres Tier => kleineres Cent-Budget
+    svc = c.app.state.svc
+    assert svc.budget.status(uid, "free", "tier3").cost_cents_limit < svc.budget.status(uid2, "free", "tier1").cost_cents_limit

@@ -5,7 +5,7 @@ import { getToken, hasSession, signIn as authSignIn, signOut as authSignOut, wip
 import { env } from "../config/env";
 import { bus } from "../events/bus";
 import type { PaywallTrigger } from "../events/types";
-import { detectLocale } from "../i18n";
+import { detectLocale, detectRegion } from "../i18n";
 import { createLocalApi } from "../mock/localApi";
 import { shouldShowPaywall } from "../paywall/triggers";
 import { createPurchases, type Purchases } from "../purchases";
@@ -18,12 +18,20 @@ let ads: Ads | null = null;
 let paywallHistory: Record<string, number> = {};
 export { setSpeaking, isSpeaking };
 
+/** KPI-Events (D1/D7/D30, Trial, Paywall, Latenz, Fehlerrate, Ad-ARPDAU). Backend speichert nur mit Einwilligung (ausser Kauf-Events). */
+export function track(name: "app_open" | "trial_start" | "trial_converted" | "purchase" | "ad_impression" | "lesson_complete" | "voice_turn" | "error" | "paywall_shown", props?: Record<string, string | number | boolean | null>) {
+  const { api: a, language } = appStore.get();
+  if (!a) return;
+  void a.track(name, props, language ?? undefined).catch(() => { /* Tracking darf nie stoeren */ });
+}
+
 const api = () => { const a = appStore.get().api; if (!a) throw new Error("app not booted"); return a; };
 export const getAds = () => (ads ??= createAds());
 export const getPurchases = () => { if (!purchases) throw new Error("app not booted"); return purchases; };
 
 function fail(e: unknown): never {
   const offline = e instanceof ApiError && e.status === 0;
+  track("error", { status: e instanceof ApiError ? e.status : -1 });
   appStore.set({ offline, lastError: e instanceof ApiError ? e.detail : "error" });
   throw e;
 }
@@ -39,6 +47,7 @@ function wireBus() {
     if (!shouldShowPaywall(trigger, tier, paywallHistory, Date.now())) return false;
     paywallHistory = { ...paywallHistory, [trigger]: Date.now() }; void savePrefs({ paywallHistory });
     appStore.set({ paywall: trigger });
+    track("paywall_shown", { trigger });
     return true;
   };
   onSpeakingEnd(() => { const p = pendingPaywall; pendingPaywall = null; if (p) tryShow(p); });
@@ -63,9 +72,10 @@ export async function boot(): Promise<void> {
 }
 
 async function afterSignIn(): Promise<void> {
-  const user = await guard(api().sync({ native_language: detectLocale(), ui_language: detectLocale() }));
+  const user = await guard(api().sync({ native_language: detectLocale(), ui_language: detectLocale(), region: detectRegion() }));
   await purchases?.init(user.profile.user_id);
   appStore.set({ user, signedIn: true, testMode: api().mode === "mock" || appStore.get().testMode });
+  track("app_open");
   const lang = appStore.get().language;
   if (lang) await refreshState();
 }
@@ -137,6 +147,7 @@ export async function finishLesson() {
   const minutes = Math.max(0.1, Math.round(((Date.now() - (lesson.startedAt ?? Date.now())) / 60000) * 10) / 10);
   const events = await guard(api().completeLesson({ language: language!, xp: Math.min(lesson.xp, 500), mistakes: lesson.mistakes, minutes: Math.min(minutes, 120) }));
   bus.emitAll(events);
+  track("lesson_complete", { mistakes: lesson.mistakes, minutes });
   await refreshState();
   return { events, stats: { ...lesson, minutes } };
 }
@@ -144,6 +155,7 @@ export async function finishLesson() {
 export async function watchRewardedAd(): Promise<boolean> {
   const earned = await getAds().showRewarded();
   if (!earned) return false;
+  track("ad_impression", { format: "rewarded" });
   const events = await guard(api().rewardedAd(appStore.get().language!));
   bus.emitAll(events);
   await refreshState();
@@ -152,7 +164,7 @@ export async function watchRewardedAd(): Promise<boolean> {
 
 export async function buyPro(plan: "monthly" | "yearly") {
   const r = await getPurchases().purchase(plan);
-  if (r.pro) void api().track("trial_start", { plan }, appStore.get().language ?? undefined).catch(() => {});
+  // trial_start/purchase/trial_converted werden serverseitig aus dem RevenueCat-Webhook erfasst (zuverlaessig, nicht manipulierbar)
   return r;
 }
 export async function restorePurchases() { return getPurchases().restore(); }

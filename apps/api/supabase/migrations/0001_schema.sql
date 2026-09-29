@@ -31,6 +31,7 @@ create table public.memberships (
   expires_at timestamptz,
   source text not null default 'none',
   regional_tier text not null default 'tier1',
+  regional_tier_locked boolean not null default false,
   product_id text
 );
 

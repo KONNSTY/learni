@@ -140,6 +140,7 @@ components:
         native_language: { type: string }
         ui_language: { enum: [de, en] }
         display_name: { type: string, maxLength: 60 }
+        region: { type: string, pattern: "^[A-Z]{2}$", description: "ISO-Land des Geraets (Geo-Tiering der Kostenlimits)" }
     ProfilePatch:
       type: object
       additionalProperties: false

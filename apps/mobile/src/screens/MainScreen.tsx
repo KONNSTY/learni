@@ -18,7 +18,7 @@ import type { ExerciseResult, MicControls } from "../exercises/types";
 import { useFeedback } from "../feedback/FeedbackProvider";
 import { useI18n } from "../i18n";
 import type { Celebration, RootStackParamList } from "../navigation/types";
-import { dismissPaywall, finishLesson, nextExercise, patchProfile, refreshState, setSpeaking, startLesson, submitAnswer, watchRewardedAd } from "../state/controller";
+import { dismissPaywall, finishLesson, nextExercise, patchProfile, refreshState, setSpeaking, startLesson, submitAnswer, track, watchRewardedAd } from "../state/controller";
 import { useApp } from "../state/store";
 import { useTheme } from "../theme";
 import { playUrl, stopPlayback } from "../voice/playUrl";
@@ -118,6 +118,7 @@ export function MainScreen({ navigation }: Props) {
     try {
       const r = await api.voiceTurn({ language, audio_b64: clip.base64, audio_seconds: clip.seconds, audio_mime: clip.mime, exercise_id: ex?.type === "speak_repeat" ? ex.id : undefined });
       bus.emitAll(r.events);
+      track("voice_turn", { total_ms: Math.round(r.latency_ms?.total ?? 0) });
       if (ex?.type === "speak_repeat") {
         const score = r.pronunciation?.overall ?? 0;
         pronRef.current = r.pronunciation ? { score, words: r.pronunciation.words } : null;

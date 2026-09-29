@@ -8,6 +8,12 @@ export function detectLocale(): Locale {
   return code === "de" ? "de" : "en";
 }
 
+/** ISO-Land des Geraets (z. B. "DE") fuer das Geo-Tiering der Kostenlimits; nie ein Standort. */
+export function detectRegion(): string | undefined {
+  const r = Localization.getLocales?.()[0]?.regionCode;
+  return r && /^[A-Z]{2}$/.test(r) ? r : undefined;
+}
+
 interface Ctx { locale: Locale; setLocale: (l: Locale) => void; t: (k: MessageKey, v?: Record<string, string | number>) => string }
 const I18nContext = createContext<Ctx | null>(null);
 

@@ -87,6 +87,7 @@ def create_app(settings: Settings | None = None, store: Store | None = None, pro
     def auth_sync(body: M.AuthSyncRequest, request: Request, user: AuthUser = User) -> dict[str, Any]:
         enforce(request, user.user_id)
         svc.ensure_user(user.user_id, native_language=body.native_language, ui_language=body.ui_language, display_name=body.display_name)
+        svc.set_region(user.user_id, body.region)
         return svc.state(user.user_id, "es")
 
     @app.get("/v1/profile")
@@ -268,6 +269,19 @@ def _make_limiter(settings: Settings):
     return RateLimiter()
 
 
+def _track_purchase(svc: Service, uid: str, typ: str, e: dict[str, Any]) -> None:
+    """Kauf-KPIs serverseitig aus dem Webhook (Trial-Start, Trial->Paid, Kauf); unabhaengig von der Analytics-Einwilligung, da vertragsnotwendig."""
+    name = None
+    if typ == "INITIAL_PURCHASE":
+        name = "trial_start" if e.get("period_type") == "TRIAL" else "purchase"
+    elif typ == "RENEWAL" and e.get("is_trial_conversion"):
+        name = "trial_converted"
+    elif typ == "NON_RENEWING_PURCHASE":
+        name = "purchase"
+    if name:
+        svc.store.insert("analytics_events", {"user_id": uid, "name": name, "language": None, "props": {"product": str(e.get("product_id", ""))[:60]}, "tier": "pro", "ts": datetime.now(UTC).isoformat()})
+
+
 def _apply_revenuecat(svc: Service, e: dict[str, Any]) -> dict[str, Any]:
     typ = e.get("type", "")
     uid = str(e.get("app_user_id") or "").lower()
@@ -278,6 +292,11 @@ def _apply_revenuecat(svc: Service, e: dict[str, Any]) -> dict[str, Any]:
     except ValueError:
         return {"ok": True, "ignored": "anonymous user"}
     exp_ms = e.get("expiration_at_ms")
+    _track_purchase(svc, uid, typ, e)
+    if e.get("country_code"):  # Store-Land ist verlaesslicher als das Geraete-Land
+        m = svc.membership(uid)
+        m.update(user_id=uid, regional_tier=svc.regional_tier(e["country_code"]), regional_tier_locked=True)
+        svc.store.upsert("memberships", m)
     exp = datetime.fromtimestamp(exp_ms / 1000, UTC).isoformat() if exp_ms else None
     trial = e.get("period_type") == "TRIAL"
     if typ in ("INITIAL_PURCHASE", "RENEWAL", "PRODUCT_CHANGE", "UNCANCELLATION", "NON_RENEWING_PURCHASE"):

@@ -110,3 +110,24 @@ def test_repo_has_no_service_role_or_secret_in_mobile_sources():
         assert not pat.search(f.read_text(encoding="utf-8")), f
     for f in (ROOT / "apps" / "mobile").glob("app.config.ts"):
         assert not pat.search(f.read_text(encoding="utf-8")), f
+
+
+def test_email_verification_flag_off_by_default_and_enforced_when_on(settings, store):
+    import time
+    import uuid
+
+    import jwt
+
+    settings.supabase_jwt_secret = "s" * 40
+    uid = str(uuid.uuid4())
+
+    def token(verified):
+        return jwt.encode({"sub": uid, "aud": "authenticated", "exp": int(time.time()) + 60, "email": "a@b.de", "app_metadata": {"provider": "email"},
+                           "user_metadata": {"email_verified": verified}}, settings.supabase_jwt_secret, algorithm="HS256")
+
+    off = TestClient(create_app(settings, store))
+    assert off.get("/v1/profile", headers={"Authorization": f"Bearer {token(False)}"}).status_code == 200  # frei testbar
+    settings.flag_overrides = {"require_email_verification": True}
+    on = TestClient(create_app(settings, store))
+    assert on.get("/v1/profile", headers={"Authorization": f"Bearer {token(False)}"}).status_code == 403
+    assert on.get("/v1/profile", headers={"Authorization": f"Bearer {token(True)}"}).status_code == 200

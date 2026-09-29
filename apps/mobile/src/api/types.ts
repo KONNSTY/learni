@@ -29,7 +29,7 @@ export interface LearniApi {
   readonly mode: "mock" | "http";
   config(): Promise<RemoteConfig>;
   languages(): Promise<Language[]>;
-  sync(input: { native_language?: string; ui_language?: "de" | "en"; display_name?: string }): Promise<UserState>;
+  sync(input: { native_language?: string; ui_language?: "de" | "en"; display_name?: string; region?: string }): Promise<UserState>;
   patchProfile(patch: Partial<Pick<Profile, "display_name" | "age_bracket" | "ui_language">> & { settings?: Partial<Settings>; consents?: Partial<Consents> }): Promise<Profile>;
   onboarding(input: OnboardingInput): Promise<LearningPlan>;
   state(language: string): Promise<UserState>;

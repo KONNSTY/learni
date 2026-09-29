@@ -813,6 +813,8 @@ export interface components {
             /** @enum {unknown} */
             ui_language?: "de" | "en";
             display_name?: string;
+            /** @description ISO-Land des Geraets (Geo-Tiering der Kostenlimits) */
+            region?: string;
         };
         ProfilePatch: {
             display_name?: string;

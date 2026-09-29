@@ -18,6 +18,7 @@ class AuthUser:
     user_id: str
     email: str | None = None
     is_dev: bool = False
+    email_verified: bool | None = None  # None = kein E-Mail-Login (Apple/Google/anonym) oder Dev
 
 
 def verify_token(token: str, settings: Settings) -> AuthUser:
@@ -40,7 +41,9 @@ def verify_token(token: str, settings: Settings) -> AuthUser:
         uuid.UUID(str(claims["sub"]))
     except ValueError:
         raise HTTPException(401, "invalid token") from None
-    return AuthUser(str(claims["sub"]).lower(), claims.get("email"))
+    meta = claims.get("user_metadata") or {}
+    verified = meta.get("email_verified") if claims.get("email") and (claims.get("app_metadata") or {}).get("provider") == "email" else None
+    return AuthUser(str(claims["sub"]).lower(), claims.get("email"), False, verified)
 
 
 def current_user(request: Request) -> AuthUser:
@@ -48,4 +51,8 @@ def current_user(request: Request) -> AuthUser:
     scheme, _, token = header.partition(" ")
     if scheme.lower() != "bearer" or not token:
         raise HTTPException(401, "missing bearer token")
-    return verify_token(token.strip(), request.app.state.settings)
+    user = verify_token(token.strip(), request.app.state.settings)
+    # Feature-Flag (Standard aus): E-Mail-Verifikationszwang fuer E-Mail-Logins
+    if request.app.state.cfg.flag("require_email_verification") and user.email_verified is False:
+        raise HTTPException(403, "email_not_verified")
+    return user

@@ -65,5 +65,46 @@
     "llm_cents_per_1k_tokens": 0.03,
     "groq_usd_per_hour": 0.04,
     "_comment": "Preise [UNVERIFIZIERT], vor Launch gegen Anbieter-Preislisten pruefen"
+  },
+  "geo_tiers": {
+    "tier1": [
+      "DE",
+      "AT",
+      "CH",
+      "LI",
+      "LU",
+      "NL",
+      "BE",
+      "FR",
+      "IE",
+      "GB",
+      "SE",
+      "NO",
+      "DK",
+      "FI",
+      "IS",
+      "US",
+      "CA",
+      "AU",
+      "NZ",
+      "JP",
+      "SG"
+    ],
+    "tier3": [
+      "IN",
+      "ID",
+      "PH",
+      "PK",
+      "BD",
+      "NG",
+      "EG",
+      "VN",
+      "KE",
+      "GH",
+      "LK",
+      "NP"
+    ],
+    "default": "tier2",
+    "_comment": "[ANNAHME] Kosten-/Preis-Tiering nach Land; vor Launch mit Preisstrategie abstimmen"
   }
 }

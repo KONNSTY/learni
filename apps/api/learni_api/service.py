@@ -65,6 +65,21 @@ class Service:
                                               "expires_at": None, "source": "none", "regional_tier": "tier1"})
         return prof
 
+    def regional_tier(self, country: str | None) -> str:
+        """Geo-Tiering fuer Kostenlimits (Config `geo_tiers`)."""
+        g = self.cfg.get("geo_tiers", default={}) or {}
+        c = (country or "").upper()
+        for tier in ("tier1", "tier3"):
+            if c in g.get(tier, []):
+                return tier
+        return g.get("default", "tier1") if c else "tier1"
+
+    def set_region(self, user_id: str, country: str | None) -> None:
+        m = self.membership(user_id)
+        if country and m.get("source") in (None, "none", "dev-sandbox", "mock") and m.get("regional_tier_locked") is not True:
+            m.update(user_id=user_id, regional_tier=self.regional_tier(country))
+            self.store.upsert("memberships", m)
+
     def membership(self, user_id: str) -> dict[str, Any]:
         m = self.store.get("memberships", user_id=user_id) or {"tier": "free", "status": "active", "regional_tier": "tier1"}
         return m
