@@ -17,5 +17,10 @@ Schwere: **kritisch** (Absturz/Datenverlust/Sicherheit), **hoch** (Kernfunktion 
 | B-011 | niedrig | Lektionsende, Minuten | „1,2 Min“ (DE) | „1.2 Min“ | behoben (`formatNumber`) |
 | B-012 | niedrig | Sprachauswahl, Beta-Chip in Spalte | Chip bleibt kompakt | Chip zog sich über die Kartenbreite | behoben |
 | B-013 | mittel | Jede Anfrage mit ungültigem Token, ohne Supabase-Config | 401 | 503 „auth not configured“ (Konfigurationsleck) | behoben, Test `test_auth_required_and_invalid` |
+| B-014 | hoch | Build mit `EXPO_PUBLIC_*` (z. B. API-URL) | Werte stehen in der App | `env.ts` las `const e = process.env; e.EXPO_PUBLIC_…` -> Expo ersetzt nur direkte `process.env.EXPO_PUBLIC_…`-Zugriffe, alle Werte waren im Build leer | behoben (direkte Zugriffe), Test `env config only reads direct process.env…` |
+| B-015 | hoch | Release-/Web-Build mit `EXPO_PUBLIC_API_MODE=http` ohne URL | Verbindungsfehler sichtbar | fiel still auf den lokalen Mock zurück | behoben (`api.learni.invalid`), Test `release safety` |
+| B-016 | mittel | Neue `EXPO_PUBLIC_*`-Werte, erneuter Export | neue Werte im Bundle | Metro-Transform-Cache lieferte alte, leere Werte | dokumentiert (`expo export --clear`, siehe SETUP_ANLEITUNG); EAS baut ohnehin sauber |
+| B-017 | mittel | Nach „Weiter“ mit langsamer Verbindung | Ladeanzeige | die vorherige Übung erschien kurz zurückgesetzt und interaktiv (Flackern, Klicks auf altes Element) | behoben (`setExercise(null)` vor dem Laden) |
+| B-018 | hoch | Neue Items | Einführung und Übung wechseln sich ab | 18 Flashcards am Stück, Übungen erst nach allen neuen Items | behoben (Lernschlange im Orchestrator), Test `test_new_items_are_introduced_in_blocks…` |
 
 Offene kritische/hohe Fehler: **keine**.

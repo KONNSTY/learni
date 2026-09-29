@@ -315,3 +315,18 @@ def test_redis_rate_limiter_fixed_window_and_fallback():
 
     rl2 = security.RedisRateLimiter(Broken())
     assert [rl2.allow("u", "b", 1.0, 2) for _ in range(3)] == [True, True, False]  # lokaler Fallback greift
+
+
+def test_new_items_are_introduced_in_blocks_then_practiced_in_the_same_session():
+    orch = Orchestrator(ContentLibrary(ROOT / "content", True))
+    cards, recent, types, now = {}, [], [], NOW
+    for seq in range(8):
+        ex = orch.build(user_id="u", language="es", level="A1", skills={}, cards=cards, recent=recent, now=now, seq=seq)
+        types.append(ex["type"])
+        card = cards.get(ex["item_id"], Card())
+        cards[ex["item_id"]] = review(card, 3, now)
+        recent = [ex["item_id"], *recent][:6]
+        now += timedelta(seconds=30)
+    assert types[:2] == ["flashcard", "flashcard"]  # Einfuehrung in 2er-Block
+    assert types[2] != "flashcard"                   # danach Uebung des zuerst gesehenen Items, nicht noch mehr Neues
+    assert types.count("flashcard") <= 5 and any(t != "flashcard" for t in types[2:])  # Neues und Uebung wechseln sich ab

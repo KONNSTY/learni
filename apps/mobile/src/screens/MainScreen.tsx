@@ -84,7 +84,7 @@ export function MainScreen({ navigation }: Props) {
   }, [avatar, say]);
 
   const load = useCallback(async () => {
-    setLoading(true); setResult(null); pronRef.current = null;
+    setLoading(true); setResult(null); setExercise(null); pronRef.current = null; // alte Uebung nie kurz "zurueckgesetzt" zeigen (Flackern bei Netzwerk-Latenz)
     try {
       const ex = await nextExercise();
       setExercise(ex); shownAt.current = Date.now();

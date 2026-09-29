@@ -87,11 +87,12 @@ describe("release safety (no silent mock in release builds)", () => {
 });
 
 describe("no secrets in client env", () => {
-  it("env config only exposes EXPO_PUBLIC_* values", () => {
+  it("env config only reads direct process.env.EXPO_PUBLIC_* references (Expo inlines only those)", () => {
     const src = readFileSync(join(__dirname, "../src/config/env.ts"), "utf8");
-    const vars = [...src.matchAll(/e\.([A-Z0-9_]+)/g)].map((m) => m[1]);
-    expect(vars.length).toBeGreaterThan(3);
-    for (const v of vars) expect(v.startsWith("EXPO_PUBLIC_"), v).toBe(true);
-    expect(vars.some((v) => /SERVICE_ROLE|SECRET|GROQ|AZURE|ELEVEN|LLM|WEBHOOK/.test(v))).toBe(false);
+    const refs = [...src.matchAll(/process\.env\.([A-Z0-9_]+)/g)].map((m) => m[1]);
+    expect(refs.length).toBeGreaterThan(8);
+    for (const v of refs) expect(v.startsWith("EXPO_PUBLIC_"), v).toBe(true);
+    expect(refs.some((v) => /SERVICE_ROLE|SECRET|GROQ|AZURE|ELEVEN|LLM|WEBHOOK/.test(v))).toBe(false);
+    expect(src).not.toMatch(/process\.env\[|const \w+ = process\.env;/); // kein Alias / dynamischer Zugriff (wuerde im Build leer bleiben)
   });
 });

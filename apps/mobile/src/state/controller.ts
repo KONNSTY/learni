@@ -60,7 +60,8 @@ export async function boot(): Promise<void> {
   wireBus();
   const prefs = await loadPrefs();
   paywallHistory = prefs.paywallHistory;
-  const client: LearniApi = env.apiMode === "http" && env.apiUrl ? createHttpApi(env.apiUrl, getToken) : createLocalApi({ kv: asyncKV });
+  // Release-Sicherheit: http-Modus ohne URL faellt NIE still auf den lokalen Mock zurueck (.invalid loest nie auf -> Offline-Hinweis)
+  const client: LearniApi = env.apiMode === "http" ? createHttpApi(env.apiUrl || "https://api.learni.invalid", getToken) : createLocalApi({ kv: asyncKV });
   appStore.set({ api: client, language: prefs.language, onboarded: prefs.onboarded, consentDone: prefs.consentDone, aiNoticeAck: prefs.aiNoticeAck, testMode: client.mode === "mock" });
   purchases = createPurchases(client, refreshState);
   try {

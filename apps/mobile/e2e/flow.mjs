@@ -37,24 +37,29 @@ await visible("plan-free"); await shot("06-plan"); await click("plan-free"); ste
 await visible("subtitle", 15000); await shot("07-main"); step("main screen");
 
 const seen = new Set();
-for (let i = 0; i < 8; i++) {
-  await visible("exercise-prompt", 10000).catch(() => {});
-  if (await tid("flip-button").count()) { seen.add("flashcard"); await click("flip-button"); await click("rate-good"); }
-  else if (await tid("play-button").count()) { seen.add("listen_pick"); await tid("option-").first().click().catch(() => {}); await page.locator('[role="button"][data-testid^="option-"]').first().click(); await click("check-button"); }
-  else if (await page.locator('[data-testid^="token-"]').count()) { seen.add("word_order"); const n = await page.locator('[data-testid^="token-"]').count(); for (let k = 0; k < n; k++) await page.locator('[data-testid^="token-"]').first().click(); await click("check-button"); }
-  else if (await page.locator('[data-testid^="left-"]').count()) { seen.add("matching"); const n = await page.locator('[data-testid^="left-"]').count(); for (let k = 0; k < n; k++) { await page.locator('[data-testid^="left-"]').nth(k).click(); await page.locator('[data-testid^="right-"]').nth(k).click(); } await click("check-button"); }
-  else if ((await tid("mic-hint").count()) || (await tid("typed-answer").count())) {
+// Die naechste Uebung kommt asynchron (bei echtem Backend Netzwerk-Latenz): Zustand mehrfach klassifizieren statt einmal zu raten.
+async function playOne() {
+  if (await tid("flip-button").count()) { seen.add("flashcard"); await click("flip-button"); await click("rate-good"); return true; }
+  if (await tid("play-button").count()) { seen.add("listen_pick"); await page.locator('[role="button"][data-testid^="option-"]').first().click(); await click("check-button"); return true; }
+  if (await page.locator('[data-testid^="token-"]').count()) { seen.add("word_order"); const n = await page.locator('[data-testid^="token-"]').count(); for (let k = 0; k < n; k++) await page.locator('[data-testid^="token-"]').first().click(); await click("check-button"); return true; }
+  if (await page.locator('[data-testid^="left-"]').count()) { seen.add("matching"); const n = await page.locator('[data-testid^="left-"]').count(); for (let k = 0; k < n; k++) { await page.locator('[data-testid^="left-"]').nth(k).click(); await page.locator('[data-testid^="right-"]').nth(k).click(); } await click("check-button"); return true; }
+  if ((await tid("mic-hint").count()) || (await tid("typed-answer").count())) {
     seen.add("speak_repeat"); if (await tid("mic-hint").count()) await holdMic(page);
     if (await tid("consent-accept").count()) { await tid("consent-voice").first().click(); await click("consent-accept"); await page.waitForTimeout(400); await holdMic(page); await page.waitForTimeout(600); }
     const target = (await tid("exercise-prompt").first().textContent()) ?? "";
-    await visible("typed-answer", 5000); await tid("typed-answer").fill(target); await page.getByRole("button", { name: /Prüfen/ }).first().click();
+    await visible("typed-answer", 5000); await tid("typed-answer").fill(target); await page.getByRole("button", { name: /Prüfen/ }).first().click(); return true;
   }
-  else if (await page.locator('[data-testid^="option-"]').count()) { seen.add("options"); await page.locator('[data-testid^="option-"]').first().click(); await click("check-button"); }
-  else throw new Error("unknown exercise state at step " + i);
+  if (await page.locator('[data-testid^="option-"]').count()) { seen.add("options"); await page.locator('[data-testid^="option-"]').first().click(); await click("check-button"); return true; }
+  return false;
+}
+for (let i = 0; i < 8; i++) {
+  let played = false;
+  for (let attempt = 0; attempt < 40 && !played; attempt++) { played = await playOne(); if (!played) await page.waitForTimeout(300); }
+  if (!played) { await shot("unknown-state"); const ids = await page.locator("[data-testid]").evaluateAll((els) => els.map((e) => e.getAttribute("data-testid"))); throw new Error("unknown exercise state at step " + i + ": " + ids.join(",")); }
   if (i === 2) await shot("08-exercise");
-  if (await tid("next-button").count() === 0) { await tid("next-button").first().waitFor({ timeout: 4000 }).catch(() => {}); }
+  await tid("next-button").first().waitFor({ timeout: 6000 }).catch(() => {});
   if (await tid("next-button").count()) { if (i === 2) await shot("09-result"); await click("next-button"); }
-  else { step("(no next button; speaking exercise needs consent flow) exercise " + i); break; }
+  else { step("(no next button) exercise " + i); break; }
 }
 step("exercises seen: " + [...seen].join(", "));
 

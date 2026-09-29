@@ -14,6 +14,8 @@ from .fsrs import Card, retrievability
 from .hearts import is_decidable
 
 SKILLS = ("listening", "speaking", "vocabulary", "grammar")
+NEW_BLOCK = 2  # so viele frisch eingefuehrte Items, bis geuebt wird
+LEARNING_WINDOW_S = 30 * 60
 
 
 class NoContentError(Exception):
@@ -32,11 +34,18 @@ class Orchestrator:
         by_id = {i["item_id"]: (p, i) for p, i in rows}
         card_of = lambda iid: cards.get(iid, Card())  # noqa: E731
         due = [(retrievability(card_of(iid), now), iid) for iid in by_id if not card_of(iid).is_new and card_of(iid).due and card_of(iid).due <= now]
+        # Lernschlange: gerade eingefuehrte Items (nur eine Wiederholung) werden noch in derselben Sitzung geuebt,
+        # bevor weitere neue Items kommen (Einfuehrung in 2er-Bloecken, dann Uebung).
+        learning = [iid for iid in by_id if card_of(iid).reps == 1 and card_of(iid).last_review is not None
+                    and (now - card_of(iid).last_review).total_seconds() < LEARNING_WINDOW_S]
+        learning.sort(key=lambda i: card_of(i).last_review)  # aeltestes zuerst
+        new = [iid for iid in by_id if card_of(iid).is_new and iid not in recent[:2]]
         if due:
             due.sort()
             iid = next((i for _, i in due if i not in recent[:2]), due[0][1])
+        elif learning and (len(learning) >= NEW_BLOCK or not new) and any(i not in recent[:1] for i in learning):
+            iid = next(i for i in learning if i not in recent[:1])  # nie direkt nach seiner Einfuehrung
         else:
-            new = [iid for iid in by_id if card_of(iid).is_new and iid not in recent[:2]]
             if new:
                 iid = new[0]
             else:  # alles gelernt und nichts faellig: schwaechstes Item ueben

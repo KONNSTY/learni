@@ -106,4 +106,5 @@ eas build --profile development --platform ios       # Dev Client (Simulator: --
 npx expo start --dev-client
 ```
 Alternativ lokal mit Xcode: `npx expo prebuild --platform ios && npx expo run:ios --device`.
+**Hinweis:** `EXPO_PUBLIC_*` werden beim Bundlen fest eingebettet. Nach Änderung der Werte neu bundlen (`npx expo start --clear` bzw. `npx expo export --clear`), sonst liefert der Metro-Cache alte Werte. EAS-Builds starten sauber.
 Backend erreichbar machen: LAN-IP in `EXPO_PUBLIC_API_URL` (Handy und Rechner im selben WLAN, API mit `--host 0.0.0.0`) oder Tunnel (`cloudflared tunnel --url http://localhost:8000`).

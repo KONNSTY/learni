@@ -17,9 +17,25 @@ Stand: ohne API-Keys, KI nur im **Mock-Modus**. Automatisierte Abdeckung: `apps/
 | Verträge | `test_misc.py`, `apps/mobile/tests/events.test.ts` | OpenAPI ↔ Routen, Event-Schema ↔ Frontend-Events, Avatar-Manifest |
 | Mobile-Logik | `apps/mobile/tests/*.test.ts` | Herzen, VAD, Visemes, Event-Bus, Feedback-Map (Sound/Haptik/Motion), i18n-Parität, Kontrast, Token-Sync, HTTP-Client, Gate-Reihenfolge, Paywall-Cooldown, Werbe-Regeln, Secure-Storage-Chunking |
 | Mock-API (Expo Go ohne Backend) | `localApi.test.ts` | kompletter Durchlauf, alle Formate, Herzen/Pro/Streak/Consent, Contract-Validierung per Ajv |
-| **E2E im Browser** | `apps/mobile/e2e/flow.mjs`, `edge.mjs` | Login → Onboarding → 8 Übungen → Lektionsende → Celebration → Profil → Konto löschen; Herzen leer → Sheet → Rewarded Ad; Sprachwechsel; Pro; Englisch + Dark; Reduce Motion + 320 px |
+| **E2E im Browser** (Mock-Modus **und** gegen das echte FastAPI-Backend) | `apps/mobile/e2e/flow.mjs`, `edge.mjs` | Login → Onboarding → 8 Übungen → Lektionsende → Celebration → Profil → Konto löschen; Herzen leer → Sheet → Rewarded Ad; Sprachwechsel; Pro; Englisch + Dark; Reduce Motion + 320 px |
 
-Ausführen: siehe `README.md`. E2E: `cd apps/mobile && npx expo export --platform web --output-dir /tmp/learni-web && (cd /tmp/learni-web && python3 -m http.server 8098 &) && BASE_URL=http://localhost:8098 node e2e/flow.mjs && BASE_URL=http://localhost:8098 node e2e/edge.mjs`.
+Ausführen: siehe `README.md`.
+
+**E2E (lokaler Mock-Modus, kein Backend):**
+```bash
+cd apps/mobile
+EXPO_PUBLIC_API_MODE=mock EXPO_PUBLIC_ALLOW_MOCK_IN_RELEASE=true npx expo export --platform web --clear --output-dir /tmp/learni-web
+(cd /tmp/learni-web && python3 -m http.server 8098 &)
+BASE_URL=http://localhost:8098 node e2e/flow.mjs && BASE_URL=http://localhost:8098 node e2e/edge.mjs
+```
+**Integrationstest Client ↔ echtes Backend (Mock-Provider, Dev-Auth, MemoryStore):**
+```bash
+cd apps/api && APP_ENV=dev CORS_ORIGINS=http://localhost:8097 uvicorn learni_api.main:app --port 8000 &
+cd apps/mobile && EXPO_PUBLIC_API_URL=http://localhost:8000 EXPO_PUBLIC_API_MODE=http npx expo export --platform web --clear --output-dir /tmp/learni-web-http
+(cd /tmp/learni-web-http && python3 -m http.server 8097 &)
+BASE_URL=http://localhost:8097 node e2e/flow.mjs
+```
+(Ohne `--clear` kann der Metro-Cache alte `EXPO_PUBLIC_*`-Werte liefern.) Release-Builds ignorieren `mock`, außer `EXPO_PUBLIC_ALLOW_MOCK_IN_RELEASE=true` ist bewusst gesetzt.
 
 ## 2. Manuelle Testmatrix (iPhone, Expo Go bzw. Dev Client)
 Legende: ☐ offen · Ergebnisse als ✔/✘ mit Bug-ID in `docs/BUGS.md` eintragen.
