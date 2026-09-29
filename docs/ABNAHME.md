@@ -89,7 +89,7 @@
 |---|---|---|
 | Keine offenen kritischen/hohen Funde, Secret-Scan sauber | erfüllt | `docs/SECURITY_AUDIT.md` |
 | RLS-Tests (A sieht nie B) | erfüllt | `test_rls.py` (echtes PostgreSQL) |
-| Tests grün, Bugliste ohne kritische/hohe Einträge | erfüllt | `docs/BUGS.md`; pytest 178, vitest 48, E2E `flow.mjs`/`edge.mjs`, Bundle-Export iOS+Web |
+| Tests grün, Bugliste ohne kritische/hohe Einträge | erfüllt | `docs/BUGS.md`; pytest 179, vitest 48, E2E `flow.mjs`/`edge.mjs`, Bundle-Export iOS+Web |
 | Key-Smoketest vorbereitet | erfüllt | `docs/KEY_SMOKETEST.md`, `scripts/smoketest_providers.py` |
 | Release-Doku iOS (TestFlight später) | erfüllt | `docs/RELEASE_IOS.md` |
 

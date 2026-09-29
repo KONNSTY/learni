@@ -11,7 +11,7 @@
 | 4 Voice/KI | Provider-Interfaces + Adapter + Mocks, Voice-Pipeline mit Latenzmessung/Barge-in, Guardrails, Prompt-Bibliothek, Bake-off-Tooling, TTS-Cache/Prerender |
 | 5 Monetarisierung | RevenueCat-/AdMob-Wrapper mit Mock, Paywall-Trigger, `SETUP_ANLEITUNG.md`, `README.md` |
 | 6 Security | `SECURITY_AUDIT.md`, gitleaks sauber, pip-audit sauber, RLS-Tests |
-| 7 QA | pytest 178, vitest 48, E2E (`flow`, `edge`), `QA_TESTPLAN.md`, `BUGS.md` (13 behoben, 0 offen kritisch/hoch), `KEY_SMOKETEST.md`, `RELEASE_IOS.md` |
+| 7 QA | pytest 179, vitest 48, E2E (`flow`, `edge`, plus Integrationslauf gegen das echte FastAPI-Backend), `QA_TESTPLAN.md`, `BUGS.md` (13 behoben, 0 offen kritisch/hoch), `KEY_SMOKETEST.md`, `RELEASE_IOS.md` |
 | 8 Abnahme | `ABNAHME.md` mit Status je Anforderung und Liste „Wartet auf Keys oder Entscheidung“ |
 
 ## Offen (siehe ABNAHME.md, „Wartet auf Keys oder Entscheidung“)
