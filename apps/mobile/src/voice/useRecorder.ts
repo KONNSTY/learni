@@ -52,7 +52,7 @@ export function useRecorder(onAutoStop?: () => void) {
         }
       }, 100);
       return true;
-    } catch { setRecording(false); return false; }
+    } catch { setRecording(false); setPermission("denied"); return false; } // kein Mikrofon nutzbar -> Tipp-Alternative anbieten
   }, [ensurePermission, onAutoStop, recorder]);
 
   const stop = useCallback(async (): Promise<Clip | null> => {

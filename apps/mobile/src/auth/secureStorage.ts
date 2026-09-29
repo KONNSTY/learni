@@ -1,33 +1,13 @@
+import { Platform } from "react-native";
 import * as SecureStore from "expo-secure-store";
 
-export interface SecureBackend { getItemAsync(k: string): Promise<string | null>; setItemAsync(k: string, v: string): Promise<void>; deleteItemAsync(k: string): Promise<void> }
-const CHUNK = 1800; // SecureStore-Limit ~2048 Bytes je Wert
+import { createChunkedStorage, type SecureBackend } from "./secureStorage.chunked";
+export { createChunkedStorage, type SecureBackend };
 
-/** Supabase-Session ist groesser als das SecureStore-Limit -> in Stuecke teilen. Token nie in AsyncStorage/Logs. */
-export function createChunkedStorage(b: SecureBackend = SecureStore as SecureBackend) {
-  const safe = (k: string) => k.replace(/[^A-Za-z0-9._-]/g, "_");
-  return {
-    async getItem(key: string): Promise<string | null> {
-      const k = safe(key);
-      const n = await b.getItemAsync(`${k}.n`);
-      if (n === null) return null;
-      const parts: string[] = [];
-      for (let i = 0; i < Number(n); i++) { const p = await b.getItemAsync(`${k}.${i}`); if (p === null) return null; parts.push(p); }
-      return parts.join("");
-    },
-    async setItem(key: string, value: string): Promise<void> {
-      const k = safe(key);
-      await this.removeItem(key);
-      const parts = value.match(new RegExp(`.{1,${CHUNK}}`, "gs")) ?? [""];
-      for (let i = 0; i < parts.length; i++) await b.setItemAsync(`${k}.${i}`, parts[i]);
-      await b.setItemAsync(`${k}.n`, String(parts.length));
-    },
-    async removeItem(key: string): Promise<void> {
-      const k = safe(key);
-      const n = await b.getItemAsync(`${k}.n`);
-      for (let i = 0; i < Number(n ?? 0); i++) await b.deleteItemAsync(`${k}.${i}`);
-      await b.deleteItemAsync(`${k}.n`);
-    },
-  };
-}
-export const secureStorage = createChunkedStorage();
+/** Web-Vorschau (nur Entwicklung/E2E): SecureStore gibt es dort nicht -> localStorage. Auf iOS/Android immer Keychain/Keystore. */
+const webBackend = (): SecureBackend => ({
+  getItemAsync: async (k) => globalThis.localStorage?.getItem(k) ?? null,
+  setItemAsync: async (k, v) => { globalThis.localStorage?.setItem(k, v); },
+  deleteItemAsync: async (k) => { globalThis.localStorage?.removeItem(k); },
+});
+export const secureStorage = createChunkedStorage(Platform.OS === "web" ? webBackend() : (SecureStore as SecureBackend));

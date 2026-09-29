@@ -42,7 +42,7 @@ export function LanguageSelectScreen({ navigation, route }: Props) {
             <View style={{ gap: 4 }}>
               <Text weight="bold" variant={cols === 3 ? "caption" : "body"}>{l.native_name}</Text>
               {l.native_name !== l.name && <Text variant="caption" color="textMuted">{l.name}</Text>}
-              {l.tier !== "A" && <Chip label={t("common.beta")} bg="surfaceAlt" fg="textMuted" />}
+              {l.tier !== "A" && <View style={{ alignSelf: "flex-start" }}><Chip label={t("common.beta")} bg="surfaceAlt" fg="textMuted" /></View>}
             </View>
           </Pressable>
         ))}

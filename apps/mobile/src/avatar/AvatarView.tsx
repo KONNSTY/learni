@@ -1,7 +1,8 @@
 import React from "react";
 import type { AvatarState } from "./controller";
 import { PlaceholderAvatar } from "./PlaceholderAvatar";
-import { loadRive, RiveAvatar } from "./RiveAvatar";
+import { RiveAvatar } from "./RiveAvatar";
+import { loadRive } from "./riveLoader";
 import { activePackage } from "./registry";
 
 /** Wählt Rive-Paket (falls .riv + Native-Modul vorhanden) sonst den 2D-Platzhalter. */

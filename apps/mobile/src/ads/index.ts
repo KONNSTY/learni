@@ -1,15 +1,9 @@
 import { Platform } from "react-native";
 import { env } from "../config/env";
-import { requestConfig, type AdContext } from "./policy";
+import { requestConfig } from "./policy";
 
-export interface Ads {
-  readonly mock: boolean;
-  /** ATT (iOS) -> UMP/TCF (EU) -> SDK-Init. Idempotent. */
-  init(ctx: Pick<AdContext, "ageBracket" | "personalizedConsent">): Promise<void>;
-  /** Freiwillige Rewarded Ad. true = Belohnung verdient. */
-  showRewarded(): Promise<boolean>;
-  showInterstitial(): Promise<void>;
-}
+export type { Ads } from "./types";
+import type { Ads } from "./types";
 type Gma = typeof import("react-native-google-mobile-ads");
 const load = (): Gma | null => { try { return require("react-native-google-mobile-ads") as Gma; } catch { return null; } };
 

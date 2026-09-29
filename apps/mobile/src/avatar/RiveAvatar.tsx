@@ -2,12 +2,11 @@ import React, { useEffect } from "react";
 import type { AvatarManifest } from "./manifest";
 import { EMOTIONS } from "./manifest";
 import type { AvatarState } from "./controller";
+import { loadRive } from "./riveLoader";
 
 /** Rive-Avatar (echtes Paket: .riv + manifest.json). Nutzt @rive-app/react-native (Nitro, braucht Dev Build).
  *  Input-Vertrag laut Manifest: viseme (0..21), emotion (Index in manifest.inputs.emotion.values), gazeX/gazeY, speaking. */
-export function loadRive(): typeof import("@rive-app/react-native") | null {
-  try { return require("@rive-app/react-native"); } catch { return null; }
-}
+export { loadRive };
 
 interface Props { manifest: AvatarManifest; source: number; state: AvatarState; size?: number }
 export function RiveAvatar({ manifest, source, state, size = 200 }: Props) {

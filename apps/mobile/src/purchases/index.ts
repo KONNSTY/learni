@@ -1,15 +1,9 @@
 import { Platform } from "react-native";
 import { env } from "../config/env";
 import type { LearniApi } from "../api/types";
+import type { Purchases } from "./types";
 
-export type Plan = "monthly" | "yearly";
-export interface PurchaseResult { pro: boolean; cancelled: boolean }
-export interface Purchases {
-  readonly sandbox: boolean;
-  init(userId: string): Promise<void>;
-  purchase(plan: Plan): Promise<PurchaseResult>;
-  restore(): Promise<boolean>;
-}
+export type { Plan, PurchaseResult, Purchases } from "./types";
 const ENTITLEMENT = "pro";
 type RC = typeof import("react-native-purchases").default;
 

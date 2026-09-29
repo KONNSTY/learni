@@ -158,7 +158,7 @@ export function MainScreen({ navigation }: Props) {
   return (
     <View style={{ flex: 1, backgroundColor: th.colors.bg }}>
       <Confetti trigger={confetti.n} big={confetti.name === "confetti_big"} />
-      <ScrollView contentContainerStyle={{ padding: th.space.lg, paddingTop: 56, gap: th.space.md, flexGrow: 1 }} keyboardShouldPersistTaps="handled">
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: th.space.lg, paddingTop: 56, gap: th.space.md, flexGrow: 1 }} keyboardShouldPersistTaps="handled">
         {/* oben: Speaker-Toggle links, Profil rechts */}
         <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
           <Chip testID="speaker-toggle" label={`${t("main.speaker")}: ${settings?.avatar_voice ?? true ? "●" : "○"}`} accessibilityLabel={t("settings.avatarVoice")} onPress={() => { void patchProfile({ settings: { avatar_voice: !(settings?.avatar_voice ?? true) } }); if (settings?.avatar_voice) { stopPlayback(); stopLocalSpeech(); } }} />
