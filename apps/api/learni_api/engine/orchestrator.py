@@ -44,8 +44,10 @@ class Orchestrator:
         p, item = by_id[iid]
         return p, item, card_of(iid)
 
-    def pick_skill(self, item: dict[str, Any], skills: dict[str, float]) -> str:
+    def pick_skill(self, item: dict[str, Any], skills: dict[str, float], pack: Pack | None = None) -> str:
         tags = [t for t in item.get("skill_tags", ["vocabulary"]) if t in SKILLS] or ["vocabulary"]
+        if pack is not None and pack.blanks and "grammar" not in tags:
+            tags.append("grammar")  # Packs mit Luecken-Saetzen trainieren zusaetzlich Grammatik
         return min(tags, key=lambda t: (skills.get(t, 0.0), SKILLS.index(t)))
 
     def pick_type(self, skill: str, card: Card, pack: Pack, item: dict[str, Any]) -> str:
@@ -69,7 +71,7 @@ class Orchestrator:
               recent: list[str], now: datetime, seq: int, ui_lang: str = "de", accuracy: float = 1.0,
               decidable_allowed: bool = True) -> dict[str, Any]:
         pack, item, card = self.pick_item(language, level, cards, recent, now)
-        skill = self.pick_skill(item, skills)
+        skill = self.pick_skill(item, skills, pack)
         ex_type = self.pick_type(skill, card, pack, item)
         if not decidable_allowed and is_decidable(ex_type):
             ex_type, skill = "speak_repeat", "speaking"  # Herzen leer: nur nicht entscheidbare Formate

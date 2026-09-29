@@ -21,7 +21,7 @@
       "additionalProperties": false,
       "properties": {
         "say": { "type": "string", "maxLength": 400 },
-        "translation": { "type": "string", "maxLength": 400 },
+        "translation": { "type": ["string", "null"], "maxLength": 400 },
         "audio_url": { "type": ["string", "null"] },
         "hint": { "type": ["string", "null"], "maxLength": 300 }
       }

@@ -16,8 +16,8 @@ class GroqSTT:
         self.client = client or httpx.AsyncClient(timeout=httpx.Timeout(15.0, connect=5.0))
 
     async def transcribe(self, audio: bytes, *, language_hint: str, mime: str = "audio/wav") -> STTResult:
-        data = [("model", self.model), ("language", language_hint), ("response_format", "verbose_json"),
-                ("timestamp_granularities[]", "word"), ("temperature", "0")]
+        data = {"model": self.model, "language": language_hint, "response_format": "verbose_json",
+                "timestamp_granularities[]": ["word"], "temperature": "0"}
         r = await self.client.post(self.URL, headers={"Authorization": f"Bearer {self.key}"}, data=data,
                                    files={"file": ("audio.wav", audio, mime)})
         if r.status_code >= 400:

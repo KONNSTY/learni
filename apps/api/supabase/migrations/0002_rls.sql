@@ -64,3 +64,6 @@ grant select, insert, update, delete on public.profiles to authenticated;
 grant select on public.memberships, public.learner_state, public.item_states, public.usage_daily, public.league_entries to authenticated;
 grant select, delete on public.tutor_profiles to authenticated;
 grant select, insert, delete on public.friendships to authenticated;
+
+-- Backend (service_role, bypassrls) braucht Vollzugriff; Supabase vergibt das standardmaessig, hier explizit und idempotent.
+grant all on all tables in schema public to service_role;

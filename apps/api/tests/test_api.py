@@ -1,7 +1,5 @@
 import jsonschema
-import pytest
-
-from conftest import b64, load_schema, new_user, validate_events, wav_bytes
+from conftest import load_schema, new_user, validate_events
 
 
 def _answer_for(client, h, ex, correct=True):
@@ -38,6 +36,7 @@ def test_auth_required_and_invalid(client):
 
 def test_dev_token_rejected_in_prod(settings, store):
     from fastapi.testclient import TestClient
+
     from learni_api.app import create_app
     settings.app_env = "prod"
     c = TestClient(create_app(settings, store))
@@ -50,8 +49,10 @@ def test_dev_token_rejected_in_prod(settings, store):
 def test_jwt_validation(settings, store):
     import time
     import uuid
+
     import jwt
     from fastapi.testclient import TestClient
+
     from learni_api.app import create_app
     settings.supabase_jwt_secret = "s" * 40
     c = TestClient(create_app(settings, store))
@@ -176,6 +177,7 @@ def test_tutor_profile_view_and_delete(client, user):
 
 def test_revenuecat_webhook(settings, store):
     from fastapi.testclient import TestClient
+
     from learni_api.app import create_app
     settings.revenuecat_webhook_secret = "whsec_test_123"
     c = TestClient(create_app(settings, store))
